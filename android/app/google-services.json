@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "101240004651",
+    "project_id": "c-box-38caf",
+    "storage_bucket": "c-box-38caf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:101240004651:android:1542280358530761700a6e",
+        "android_client_info": {
+          "package_name": "com.example.c_box"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB56IA9FTmpwQx9HSrKXjnxMAOvCB_BAXw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
