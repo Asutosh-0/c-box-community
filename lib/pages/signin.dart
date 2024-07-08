@@ -1,10 +1,16 @@
 import 'package:c_box/navigation_bar/navigation_bar.dart';
 import 'package:c_box/pages/signup.dart';
+import 'package:c_box/services/auth_services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class SignIn extends StatelessWidget {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final _auth = Auth_Services();
+  final auth = FirebaseAuth.instance;
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -231,6 +237,7 @@ class SignIn extends StatelessWidget {
               ),
               padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
               child: TextField(
+                controller: emailController,
                 decoration: InputDecoration(
                   hintText: 'Enter Email',
                   hintStyle: GoogleFonts.roboto(
@@ -250,6 +257,7 @@ class SignIn extends StatelessWidget {
               ),
               padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
               child: TextField(
+                controller: passwordController,
                 decoration: InputDecoration(
                   hintText: 'Enter Password',
                   hintStyle: GoogleFonts.roboto(
@@ -279,14 +287,37 @@ class SignIn extends StatelessWidget {
       ),
         SizedBox(height: constraints.maxHeight * 0.03),
         GestureDetector(
-          onTap: () { // here you can add the button function
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Sign In button tapped!')),
-            );
-            Navigator.pushReplacement(
+          onTap: () async {
+            final Email = emailController.text;
+            final Password = passwordController.text;
+
+            if(Email.isEmpty){
+              ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Enter Email.')),
+                );
+            }else if(Password.isEmpty){
+              ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Enter password.')),
+                );
+            }else{
+              final user = _auth.signinUserWithEmailAndPassword(Email, Password);
+              if (user != null) {
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => const Navigation_Bar()),
                 );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Failed to register user.')),
+                );
+              }
+            }
+              
+            // } else {
+            //   passwordError = 'Password must be at least 8 characters long, containing digits, letters, and special characters.';
+            // }
+
+            // scaffoldKey.currentState?.setState(() {});
           },
           child: Container(
             decoration: BoxDecoration(

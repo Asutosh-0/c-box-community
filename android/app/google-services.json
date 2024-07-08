@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:597187162966:android:cec0ae4e7e791099c21cf7",
+        "mobilesdk_app_id": "1:597187162966:android:df6c9c7a0e01982ac21cf7",
         "android_client_info": {
-          "package_name": "com.android.application"
+          "package_name": "com.example.c_box"
         }
       },
       "oauth_client": [],

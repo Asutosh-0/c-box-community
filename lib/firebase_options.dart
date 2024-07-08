@@ -52,7 +52,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyD8Z0u0wVb-TSl8l7vmREUj2jdqYpSKfbk',
-    appId: '1:597187162966:android:cec0ae4e7e791099c21cf7',
+    appId: '1:597187162966:android:df6c9c7a0e01982ac21cf7',
     messagingSenderId: '597187162966',
     projectId: 'c-box-community',
     storageBucket: 'c-box-community.appspot.com',
