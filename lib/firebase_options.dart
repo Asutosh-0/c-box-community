@@ -23,20 +23,11 @@ class DefaultFirebaseOptions {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -50,20 +41,49 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAFSPBHkM497cbwbioedgtpE4TR_aA0Fdg',
-    appId: '1:101240004651:web:46e05e0b9cfa7c31700a6e',
-    messagingSenderId: '101240004651',
-    projectId: 'c-box-38caf',
-    authDomain: 'c-box-38caf.firebaseapp.com',
-    storageBucket: 'c-box-38caf.appspot.com',
-    measurementId: 'G-TF635JWTCE',
+    apiKey: 'AIzaSyCXNe7_AOkmRXQljqAn0xctAKbDZ2TrG2Y',
+    appId: '1:597187162966:web:acd7028f17637ffac21cf7',
+    messagingSenderId: '597187162966',
+    projectId: 'c-box-community',
+    authDomain: 'c-box-community.firebaseapp.com',
+    storageBucket: 'c-box-community.appspot.com',
+    measurementId: 'G-D60LQHCJ6Q',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyB56IA9FTmpwQx9HSrKXjnxMAOvCB_BAXw',
-    appId: '1:101240004651:android:1542280358530761700a6e',
-    messagingSenderId: '101240004651',
-    projectId: 'c-box-38caf',
-    storageBucket: 'c-box-38caf.appspot.com',
+    apiKey: 'AIzaSyD8Z0u0wVb-TSl8l7vmREUj2jdqYpSKfbk',
+    appId: '1:597187162966:android:cec0ae4e7e791099c21cf7',
+    messagingSenderId: '597187162966',
+    projectId: 'c-box-community',
+    storageBucket: 'c-box-community.appspot.com',
   );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyAY4mqzUczV-bUOcA5ckw60iPv-8qE4Zok',
+    appId: '1:597187162966:ios:7648c7de0fb63983c21cf7',
+    messagingSenderId: '597187162966',
+    projectId: 'c-box-community',
+    storageBucket: 'c-box-community.appspot.com',
+    iosBundleId: 'com.example.cBox',
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyAY4mqzUczV-bUOcA5ckw60iPv-8qE4Zok',
+    appId: '1:597187162966:ios:7648c7de0fb63983c21cf7',
+    messagingSenderId: '597187162966',
+    projectId: 'c-box-community',
+    storageBucket: 'c-box-community.appspot.com',
+    iosBundleId: 'com.example.cBox',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyCXNe7_AOkmRXQljqAn0xctAKbDZ2TrG2Y',
+    appId: '1:597187162966:web:57f94f887dfa3035c21cf7',
+    messagingSenderId: '597187162966',
+    projectId: 'c-box-community',
+    authDomain: 'c-box-community.firebaseapp.com',
+    storageBucket: 'c-box-community.appspot.com',
+    measurementId: 'G-P6THHGY5M8',
+  );
+
 }
