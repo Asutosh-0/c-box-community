@@ -1,6 +1,6 @@
 import 'package:c_box/navigation_bar/navigation_bar.dart';
 import 'package:c_box/pages/signup.dart';
-import 'package:c_box/services/auth_services.dart';
+// import 'package:c_box/services/auth_services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -9,7 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 class SignIn extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final _auth = Auth_Services();
+  // final _auth = Auth_Services();
   final auth = FirebaseAuth.instance;
   @override
   Widget build(BuildContext context) {
@@ -300,17 +300,17 @@ class SignIn extends StatelessWidget {
                   const SnackBar(content: Text('Enter password.')),
                 );
             }else{
-              final user = _auth.signinUserWithEmailAndPassword(Email, Password);
-              if (user != null) {
+              // final user = _auth.signinUserWithEmailAndPassword(Email, Password);
+              // if (user != null) {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => const Navigation_Bar()),
                 );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Failed to register user.')),
-                );
-              }
+              // } else {
+              //   ScaffoldMessenger.of(context).showSnackBar(
+              //     const SnackBar(content: Text('Failed to register user.')),
+              //   );
+              // }
             }
               
             // } else {

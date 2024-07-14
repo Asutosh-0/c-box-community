@@ -1,392 +1,283 @@
 import 'package:c_box/navigation_bar/navigation_bar.dart';
-import 'package:c_box/services/auth_services.dart';
+import 'package:c_box/pages/Login.dart';
+import 'package:c_box/services/Authentication.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-class SignUp extends StatelessWidget {
-  final auth = Auth_Services();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  String? passwordError;
 
-  SignUp({super.key});
+class SignUp extends StatefulWidget {
+  @override
+  State<SignUp> createState() => _SignUpState();
+}
+
+class _SignUpState extends State<SignUp> {
+  TextEditingController emailC= TextEditingController();
+
+  TextEditingController passwordC= TextEditingController();
+
+  TextEditingController cPasswordC= TextEditingController();
+
+
+
+  void showLoading(){
+    showDialog(context: context, builder: (context){
+      return Center(
+          child:SizedBox(
+            width: 25, // Adjust the width to reduce the size
+            height: 25, // Adjust the height to reduce the size
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+              strokeWidth: 2.0,
+            ),
+          ),
+        )
+      ;
+    });
+  }
+
+  void showUpdate(String message)
+  {
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+        content: Text(message,style: TextStyle(color: Colors.white),
+        ),
+
+        duration: Duration(seconds: 3),
+        // backgroundColor: Colors.blue.withOpacity(0.1)
+            backgroundColor: Colors.transparent
+          ,));
+
+  }
+
+  void CheckValue() async
+  {
+    String email= emailC.text.trim();
+    String password= passwordC.text.trim();
+    String cPassword= cPasswordC.text.trim();
+
+    if(email.isEmpty || password.isEmpty || cPassword.isEmpty )
+      {
+        print("enter all the field");
+        showUpdate("enter all the field");
+
+      }
+    else{
+      if(password != cPassword)
+      {
+        print("password not match");
+        showUpdate("password not match");
+      }
+      else{
+        showLoading();
+        // sign up
+         String res = await SignUpUser(email, password);
+         if(res == "success")
+           {
+             showUpdate("account create successfully");
+             // navigating next User
+             Navigator.pop(context);
+             Navigator.push(context, MaterialPageRoute(builder: (context)=> Navigation_Bar()));
+           }
+         else{
+
+           Navigator.pop(context);
+           showUpdate(res);
+           print(res);
+
+
+         }
+
+
+
+
+
+      }
+
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        key: scaffoldKey,
-        backgroundColor: const Color(0xFF141517), // for black BG
-        body: LayoutBuilder(
-          builder: (context, constraints) {
-            if (constraints.maxWidth > 600) {
-              return largeScreenLayout(context, constraints);
-            } else {
-              return smallScreenLayout(context, constraints);
-            }
-          },
-        ),
-      ),
-    );
-  }
+    return Scaffold(
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          double width = constraints.maxWidth;
 
-  Widget largeScreenLayout(BuildContext context, BoxConstraints constraints) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF141517), // Set dark black background color
-        borderRadius: BorderRadius.circular(35),
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            buildHeader(context, constraints),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: constraints.maxWidth * 0.3,
-                  decoration: const BoxDecoration(
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: AssetImage(
-                        'assets/images/wepik_export_202308081622374_se_3_removebg_preview_1.png',
+          return SingleChildScrollView(
+            child: Center(
+              child: Container(
+                width: width > 550 ? 500 : width,
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 80),
+                    Text(
+                      "SIGN UP",
+                      style: TextStyle(fontSize: 24, color: Colors.black87),
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Text("or", style: TextStyle(fontSize: 13)),
+                        SizedBox(width: 5),
+                        InkWell(
+                          onTap: () {
+                            Navigator.pop(context);
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=> Login()));
+                          },
+                          child: Text("I have an account",
+                              style: TextStyle(color: Colors.blue[900])),
+                        )
+                      ],
+                    ),
+                    SizedBox(height: 40),
+                    Text("Email"),
+                    Container(
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.blue.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: Colors.black45, width: 1),
+                      ),
+                      child: TextField(
+                        controller: emailC,
+                        decoration: InputDecoration(
+                          hintStyle: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w300,
+                              color: Colors.black45),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(4),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                  height: constraints.maxHeight * 0.7,
-                ),
-                SizedBox(width: constraints.maxWidth * 0.08),
-                Container(
-                  width: constraints.maxWidth * 0.4,
-                  margin: const EdgeInsets.only(right: 16),
-                  child: SingleChildScrollView(
-                    child: buildForm(context, constraints),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget smallScreenLayout(BuildContext context, BoxConstraints constraints) {
-    return Container(
-      height: constraints.maxHeight,
-      width: constraints.maxWidth,
-      decoration: BoxDecoration(
-        color: const Color(0xFF141517), // Set dark black background color
-        image: DecorationImage(
-          image: const AssetImage('assets/images/wepik_export_202308081622374_se_3_removebg_preview_1.png'),
-          fit: BoxFit.cover,
-          colorFilter: ColorFilter.mode(
-              Colors.black.withOpacity(0.5),
-              BlendMode.dstATop
-          ),
-        ),
-      ),
-      child: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: constraints.maxHeight * 0.058
-        ),
-        child: Column(
-          children: [
-            buildHeader(context, constraints),
-            SizedBox(height: constraints.maxHeight * 0.01),
-            Container(
-              margin: EdgeInsets.only(right: 16),
-              child: SingleChildScrollView(
-                child: buildForm(context, constraints),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget buildHeader(BuildContext context, BoxConstraints constraints) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Image.asset(
-                'assets/c_box.png',
-                width: constraints.maxWidth * 0.10, // Adjust logo size based on maxWidth
-                height: constraints.maxWidth * 0.10,
-              ),
-              const SizedBox(width: 10), // Space between logo and text
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'C-Box',
-                    style: GoogleFonts.roboto(
-                      fontWeight: FontWeight.w900,
-                      fontSize: constraints.maxWidth * 0.04,
-                      color: const Color(0xFFFFFFFF), // White text color
+                    SizedBox(height: 30),
+                    Text("Password"),
+                    Container(
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.blue.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: Colors.black45, width: 1),
+                      ),
+                      child: TextField(
+                        controller: passwordC,
+                        decoration: InputDecoration(
+                          hintStyle: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w300,
+                              color: Colors.black45),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(4),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                  Text(
-                    'Community',
-                    style: GoogleFonts.roboto(
-                      fontWeight: FontWeight.w500,
-                      fontSize: constraints.maxWidth * 0.02,
-                      color: const Color(0xFFFFFFFF), // White text color
+
+                    SizedBox(height: 30),
+                    Text("Conform Password"),
+                    Container(
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.blue.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: Colors.black45, width: 1),
+                      ),
+                      child: TextField(
+                        controller: cPasswordC,
+                        decoration: InputDecoration(
+                          hintStyle: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w300,
+                              color: Colors.black45),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(4),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              GestureDetector(
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Sign Up button tapped!')),
-                  );
-                },
-                child: Text(
-                  'Sign Up',
-                  style: GoogleFonts.roboto(
-                    fontWeight: FontWeight.w600,
-                    fontSize: constraints.maxWidth * 0.04,
-                    color: Color(0xFFFFFFFF), // White text color
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10), // Space between buttons
-              GestureDetector(
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Register button tapped!')),
-                  );
-                },
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: constraints.maxWidth * 0.02,
-                    vertical: constraints.maxHeight * 0.01,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFFFFF),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: Text(
-                    'SignIn',
-                    style: GoogleFonts.roboto(
-                      fontWeight: FontWeight.w500,
-                      fontSize: constraints.maxWidth * 0.03,
-                      color: const Color(0xFF000000), // Black text color
+                    SizedBox(height: 30),
+                    Container(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          elevation: 2,
+                          backgroundColor: Colors.black,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                        onPressed: () {
+
+                          CheckValue();
+                          // Navigator.push(context, MaterialPageRoute(builder: (context)=> Navigation_Bar()));
+                        },
+                        child: Text("SIGN UP",
+                            style: TextStyle(color: Colors.white)),
+                      ),
                     ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildForm(BuildContext context, BoxConstraints constraints) {
-    return Column(
-      children: [
-        Text(
-          'Hello !',
-          style: GoogleFonts.roboto(
-            fontWeight: FontWeight.w600,
-            fontSize: 40,
-            color: const Color(0xFFFFFFFF), // White text color
-          ),
-        ),
-        Text(
-          'Welcome To Our Community',
-          style: GoogleFonts.roboto(
-            fontWeight: FontWeight.w500,
-            fontSize: 25,
-            color: const Color(0xFFFFFFFF), // White text color
-          ),
-        ),
-        SizedBox(height: constraints.maxHeight * 0.01),
-        Column(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFFFFF),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-              child: TextField(
-                controller: emailController,
-                decoration: InputDecoration(
-                  hintText: 'Enter Email',
-                  hintStyle: GoogleFonts.roboto(
-                    fontWeight: FontWeight.w300,
-                    fontSize: 20,
-                    color: const Color(0xFF5E5E5E),
-                  ),
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-            if (passwordError != null)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5),
-                child: Text(
-                  passwordError!,
-                  style: const TextStyle(
-                    color: Colors.red,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-            SizedBox(height: constraints.maxHeight * 0.03),
-            Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFFFFF),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-              child: TextField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  hintText: 'Enter Password',
-                  hintStyle: GoogleFonts.roboto(
-                    fontWeight: FontWeight.w300,
-                    fontSize: 20,
-                    color: const Color(0xFF5E5E5E),
-                  ),
-                  border: InputBorder.none,
+                    SizedBox(height: 30),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            height: 2,
+                            color: Colors.black26,
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Text("or", style: TextStyle(color: Colors.blue)),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: Container(
+                            height: 2,
+                            color: Colors.black26,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 30),
+                    Container(
+                      height: 35,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: Colors.black45, width: 1),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 30,
+                            height: 30,
+                            child: SvgPicture.asset(
+                              "assets/vectors/flat_color_iconsgoogle_x2.svg",
+                              width: 27,
+                              height: 27,
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          Text("Sign in with Google"),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 20,)
+                  ],
                 ),
               ),
             ),
-          ],
-        ),
-        SizedBox(height: constraints.maxHeight * 0.03),
-        GestureDetector(
-          onTap: () async {
-            final email = emailController.text;
-            final password = passwordController.text;
-
-            if(email.isEmpty){
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Enter Email.')),
-                );
-            }else if(password.isEmpty){
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Enter password.')),
-                );
-            }else{
-              final user = await auth.createUserWithEmailAndPassword(email, password);
-              if (user != null) {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const Navigation_Bar()),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Failed to register user.')),
-                );
-              }
-            }
-              
-            // } else {
-            //   passwordError = 'Password must be at least 8 characters long, containing digits, letters, and special characters.';
-            // }
-
-            scaffoldKey.currentState?.setState(() {});
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFFFFF),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            padding: EdgeInsets.symmetric(vertical: constraints.maxHeight * 0.02),
-            child: Center(
-              child: Text(
-                'Sign Up',
-                style: GoogleFonts.roboto(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 18,
-                  color: const Color(0xFF010000),
-                ),
-              ),
-            ),
-          ),
-        ),
-        SizedBox(height: constraints.maxHeight * 0.05),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            buildSocialButton(context, 'assets/vectors/flat_color_iconsgoogle_x2.svg', constraints),
-            buildSocialButton(context, 'assets/vectors/logosfacebook_x2.svg', constraints),
-            buildSocialButton(context, 'assets/vectors/ionlogo_apple_x2.svg', constraints),
-          ],
-        ),
-        SizedBox(height: constraints.maxHeight * 0.03),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Have An Account ?',
-              style: GoogleFonts.roboto(
-                fontWeight: FontWeight.w300,
-                fontSize: 16,
-                color: const Color(0xFFFFFFFF), // White text color
-              ),
-            ),
-            const SizedBox(width: 7),
-            Text(
-              'Sign In !',
-              style: GoogleFonts.roboto(
-                fontWeight: FontWeight.w900,
-                fontSize: 16,
-                color: const Color(0xFFFFFFFF), // White text color
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  bool isValidPassword(String password) {
-    final regex = RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$');
-    return regex.hasMatch(password);
-  }
-
-  Widget buildSocialButton(BuildContext context, String assetPath, BoxConstraints constraints) {
-    return GestureDetector(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Button tapped!')),
-        );
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFFFFFFFF),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        width: 60,
-        height: constraints.maxHeight * 0.07,
-        child: Center(
-          child: SvgPicture.asset(
-            assetPath,
-            width: constraints.maxWidth * 0.08,
-            height: constraints.maxHeight * 0.05,
-          ),
-        ),
+          );
+        },
       ),
     );
   }
 }
+
+
+
+

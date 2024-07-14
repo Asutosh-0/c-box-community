@@ -71,7 +71,8 @@ import 'package:flutter/material.dart';
                     selectedIndex = index;
                   });
                 },
-                backgroundColor: const Color(0xFF7B66FF), // Set the background color here
+                // backgroundColor: const Color(0xFF7B66FF), // Set the background color here
+                backgroundColor: Colors.blue.withOpacity(0.2),
                 labelType: NavigationRailLabelType.all,
                 destinations: const [
                   NavigationRailDestination(

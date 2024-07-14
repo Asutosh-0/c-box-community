@@ -1,4 +1,5 @@
 import 'package:c_box/firebase_options.dart';
+import 'package:c_box/pages/Login.dart';
 import 'package:c_box/pages/signin.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +9,11 @@ void main() async{
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
 );
-  runApp(const MyApp());
+  runApp(MaterialApp(
+    debugShowCheckedModeBanner: false,
+
+    home: Login(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -20,11 +25,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'C Box',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF7B66FF)),
-        useMaterial3: true,
-      ),
-      home:  SignIn()//Navigation_Bar(),
+      // theme: ThemeData(
+      //   colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF7B66FF)),
+      //   useMaterial3: true,
+      // ),
+      // home:  SignIn()//Navigation_Bar(),
+      home: Login(),
     );
+
   }
 }
