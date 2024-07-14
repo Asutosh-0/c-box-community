@@ -1,36 +1,37 @@
 import 'package:c_box/navigation_bar/navigation_bar.dart';
-import 'package:c_box/pages/Login.dart';
+import 'package:c_box/pages/AuthPage/signup.dart';
 import 'package:c_box/services/Authentication.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+class Login extends StatefulWidget {
+  const Login({super.key});
 
-class SignUp extends StatefulWidget {
   @override
-  State<SignUp> createState() => _SignUpState();
+  State<Login> createState() => _LoginState();
 }
 
-class _SignUpState extends State<SignUp> {
+class _LoginState extends State<Login> {
+
+
   TextEditingController emailC= TextEditingController();
 
   TextEditingController passwordC= TextEditingController();
-
-  TextEditingController cPasswordC= TextEditingController();
 
 
 
   void showLoading(){
     showDialog(context: context, builder: (context){
       return Center(
-          child:SizedBox(
-            width: 25, // Adjust the width to reduce the size
-            height: 25, // Adjust the height to reduce the size
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-              strokeWidth: 2.0,
-            ),
+        child:SizedBox(
+          width: 25, // Adjust the width to reduce the size
+          height: 25, // Adjust the height to reduce the size
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+            strokeWidth: 2.0,
           ),
-        )
+        ),
+      )
       ;
     });
   }
@@ -39,12 +40,12 @@ class _SignUpState extends State<SignUp> {
   {
     ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-        content: Text(message,style: TextStyle(color: Colors.white),
-        ),
+          content: Text(message,style: TextStyle(color: Colors.white),
+          ),
 
-        duration: Duration(seconds: 3),
-        // backgroundColor: Colors.blue.withOpacity(0.1)
-            backgroundColor: Colors.transparent
+          duration: Duration(seconds: 3),
+          // backgroundColor: Colors.blue.withOpacity(0.1)
+          backgroundColor: Colors.transparent
           ,));
 
   }
@@ -53,49 +54,38 @@ class _SignUpState extends State<SignUp> {
   {
     String email= emailC.text.trim();
     String password= passwordC.text.trim();
-    String cPassword= cPasswordC.text.trim();
 
-    if(email.isEmpty || password.isEmpty || cPassword.isEmpty )
-      {
-        print("enter all the field");
-        showUpdate("enter all the field");
+    if(email.isEmpty || password.isEmpty  )
+    {
+      print("enter all the field");
+      showUpdate("enter all the field");
 
-      }
+    }
     else{
-      if(password != cPassword)
-      {
-        print("password not match");
-        showUpdate("password not match");
-      }
-      else{
+
         showLoading();
         // sign up
-         String res = await SignUpUser(email, password);
-         if(res == "success")
-           {
-             showUpdate("account create successfully");
-             // navigating next User
-             Navigator.pop(context);
-             Navigator.push(context, MaterialPageRoute(builder: (context)=> Navigation_Bar()));
-           }
-         else{
+        String res = await SignInUser(email, password);
+        if(res == "success")
+        {
+          showUpdate("account Login successfully");
+          // navigating next User
+          Navigator.pop(context);
+          Navigator.push(context, MaterialPageRoute(builder: (context)=> Navigation_Bar()));
+        }
+        else{
 
-           Navigator.pop(context);
-           showUpdate(res);
-           print(res);
-
-
-         }
+          Navigator.pop(context);
+          showUpdate(res);
+          print(res);
 
 
+        }
 
 
-
-      }
 
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -111,9 +101,27 @@ class _SignUpState extends State<SignUp> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 80),
+                    SizedBox(height: 40,),
+                    Row(
+                      children: [
+                        Container(
+                          width: 35,
+                          height: 35,
+                          child: Image.asset("assets/c_box.png",fit: BoxFit.cover,)
+                        ),
+                        SizedBox(width: 10,),
+                       Column(
+                         crossAxisAlignment: CrossAxisAlignment.start,
+                         children: [
+                           Text("C-Box",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 14),),
+                           Text("C O M M U N I T Y",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 11,color: Colors.black87),)
+                         ],
+                       )
+                      ],
+                    ),
+                    SizedBox(height: 50),
                     Text(
-                      "SIGN UP",
+                      "Login",
                       style: TextStyle(fontSize: 24, color: Colors.black87),
                     ),
                     SizedBox(height: 10),
@@ -124,9 +132,9 @@ class _SignUpState extends State<SignUp> {
                         InkWell(
                           onTap: () {
                             Navigator.pop(context);
-                            Navigator.push(context, MaterialPageRoute(builder: (context)=> Login()));
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=> SignUp()));
                           },
-                          child: Text("I have an account",
+                          child: Text("Create an account",
                               style: TextStyle(color: Colors.blue[900])),
                         )
                       ],
@@ -177,29 +185,16 @@ class _SignUpState extends State<SignUp> {
                         ),
                       ),
                     ),
-
-                    SizedBox(height: 30),
-                    Text("Conform Password"),
-                    Container(
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.blue.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: Colors.black45, width: 1),
-                      ),
-                      child: TextField(
-                        controller: cPasswordC,
-                        decoration: InputDecoration(
-                          hintStyle: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w300,
-                              color: Colors.black45),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(4),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        InkWell(
+                          onTap: () {
+                          },
+                          child: Text("Forgot Password",
+                              style: TextStyle(color: Colors.blue[900])),
+                        )
+                      ],
                     ),
                     SizedBox(height: 30),
                     Container(
@@ -213,11 +208,9 @@ class _SignUpState extends State<SignUp> {
                           ),
                         ),
                         onPressed: () {
-
                           CheckValue();
-                          // Navigator.push(context, MaterialPageRoute(builder: (context)=> Navigation_Bar()));
                         },
-                        child: Text("SIGN UP",
+                        child: Text("LOGIN",
                             style: TextStyle(color: Colors.white)),
                       ),
                     ),
@@ -267,6 +260,7 @@ class _SignUpState extends State<SignUp> {
                       ),
                     ),
                     SizedBox(height: 20,)
+
                   ],
                 ),
               ),
@@ -277,7 +271,4 @@ class _SignUpState extends State<SignUp> {
     );
   }
 }
-
-
-
 

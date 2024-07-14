@@ -1,6 +1,5 @@
 import 'package:c_box/firebase_options.dart';
-import 'package:c_box/pages/Login.dart';
-import 'package:c_box/pages/signin.dart';
+import 'package:c_box/pages/AuthPage/Login.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 

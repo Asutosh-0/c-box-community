@@ -1,6 +1,8 @@
-import 'package:c_box/pages/Home.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import 'Screens/home.dart';
 
 class Comment extends StatefulWidget {
   const Comment({super.key});

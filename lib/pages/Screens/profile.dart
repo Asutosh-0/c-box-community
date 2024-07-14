@@ -1,5 +1,5 @@
 import 'package:c_box/pages/EditProfilePage.dart';
-import 'package:c_box/pages/post.dart';
+import 'package:c_box/pages/Screens/post.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 

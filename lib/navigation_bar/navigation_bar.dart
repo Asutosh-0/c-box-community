@@ -1,8 +1,9 @@
-import 'package:c_box/pages/Home.dart';
-import 'package:c_box/pages/post.dart';
-import 'package:c_box/pages/profile.dart';
-import 'package:c_box/pages/search.dart';
+import 'package:c_box/pages/Screens/post.dart';
+import 'package:c_box/pages/Screens/profile.dart';
+import 'package:c_box/pages/Screens/search.dart';
 import 'package:flutter/material.dart';
+
+import '../pages/Screens/home.dart';
 
   // ignore: camel_case_types
   class Navigation_Bar extends StatefulWidget {

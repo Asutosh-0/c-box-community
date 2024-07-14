@@ -1,5 +1,5 @@
 import 'package:c_box/pages/comment.dart';
-import 'package:c_box/pages/signin.dart';
+
 import 'package:flutter/material.dart';
 
 class Home extends StatefulWidget {
@@ -89,10 +89,17 @@ class _Home extends State<Home> {
         backgroundColor: Colors.purple[50],
         leading: Padding(
           padding: const EdgeInsets.all(6.0),
-          child: Material(
-            borderRadius: BorderRadius.circular(6),
-            child: Image.asset('assets/c_box.png'),
+          child:
+          Container(
+            padding: EdgeInsets.all(3.0),
+              width: 25,
+              height: 25,
+              child: Image.asset("assets/c_box.png",fit: BoxFit.cover,)
           ),
+          // Material(
+          //   borderRadius: BorderRadius.circular(6),
+          //   child: Image.asset('assets/c_box.png'),
+          // ),
         ),
         title: const Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -201,10 +208,7 @@ class _Home extends State<Home> {
                                     icon: Icon(Icons.favorite_outline, color: Colors.purpleAccent),
                                     onPressed: () {
                                       print('Favorite clicked at index $index');
-                                      Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(builder: (context) => SignIn()),
-                                      );
+
                                     },
                                   ),
                                   SizedBox(width: 5),
