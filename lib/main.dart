@@ -1,5 +1,8 @@
 import 'package:c_box/firebase_options.dart';
 import 'package:c_box/pages/AuthPage/Login.dart';
+import 'package:c_box/pages/AuthPage/OtpVerify.dart';
+import 'package:c_box/pages/AuthPage/signup.dart';
+import 'package:c_box/pages/user_detail_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
@@ -11,7 +14,12 @@ void main() async{
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
 
+    // home: Otpverify(),
+
+
+    // home: UserDetailScreen(),
     home: Login(),
+    // home: SignUp(),
   ));
 }
 
@@ -29,7 +37,7 @@ class MyApp extends StatelessWidget {
       //   useMaterial3: true,
       // ),
       // home:  SignIn()//Navigation_Bar(),
-      home: Login(),
+      // home: Login(),
     );
 
   }

@@ -149,6 +149,9 @@ class _LoginState extends State<Login> {
                         border: Border.all(color: Colors.black45, width: 1),
                       ),
                       child: TextField(
+                        cursorColor: Colors.black87,
+                        cursorWidth: 1,
+                        cursorHeight: 20,
                         controller: emailC,
                         decoration: InputDecoration(
                           hintStyle: TextStyle(
@@ -172,6 +175,9 @@ class _LoginState extends State<Login> {
                         border: Border.all(color: Colors.black45, width: 1),
                       ),
                       child: TextField(
+                        cursorColor: Colors.black87,
+                        cursorWidth: 1,
+                        cursorHeight: 20,
                         controller: passwordC,
                         decoration: InputDecoration(
                           hintStyle: TextStyle(

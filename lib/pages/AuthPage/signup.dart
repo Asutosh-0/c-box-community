@@ -1,6 +1,8 @@
 import 'package:c_box/navigation_bar/navigation_bar.dart';
 import 'package:c_box/pages/AuthPage/Login.dart';
+import 'package:c_box/pages/AuthPage/OtpVerify.dart';
 import 'package:c_box/services/Authentication.dart';
+import 'package:email_auth/email_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -11,6 +13,7 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
+  late EmailAuth emailAuth;
   TextEditingController emailC= TextEditingController();
 
   TextEditingController passwordC= TextEditingController();
@@ -76,7 +79,7 @@ class _SignUpState extends State<SignUp> {
              showUpdate("account create successfully");
              // navigating next User
              Navigator.pop(context);
-             Navigator.push(context, MaterialPageRoute(builder: (context)=> Navigation_Bar()));
+             Navigator.push(context, MaterialPageRoute(builder: (context)=> Otpverify()));
            }
          else{
 
@@ -94,6 +97,14 @@ class _SignUpState extends State<SignUp> {
       }
 
     }
+  }
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    emailAuth = new EmailAuth(sessionName: "Verify your C-Box Account");
   }
 
   @override
@@ -159,6 +170,9 @@ class _SignUpState extends State<SignUp> {
                         border: Border.all(color: Colors.black45, width: 1),
                       ),
                       child: TextField(
+                        cursorColor: Colors.black87,
+                        cursorWidth: 1,
+                        cursorHeight: 20,
                         controller: emailC,
                         decoration: InputDecoration(
                           hintStyle: TextStyle(
@@ -182,6 +196,9 @@ class _SignUpState extends State<SignUp> {
                         border: Border.all(color: Colors.black45, width: 1),
                       ),
                       child: TextField(
+                        cursorColor: Colors.black87,
+                        cursorWidth: 1,
+                        cursorHeight: 20,
                         controller: passwordC,
                         decoration: InputDecoration(
                           hintStyle: TextStyle(
@@ -206,6 +223,9 @@ class _SignUpState extends State<SignUp> {
                         border: Border.all(color: Colors.black45, width: 1),
                       ),
                       child: TextField(
+                        cursorColor: Colors.black87,
+                        cursorWidth: 1,
+                        cursorHeight: 20,
                         controller: cPasswordC,
                         decoration: InputDecoration(
                           hintStyle: TextStyle(
