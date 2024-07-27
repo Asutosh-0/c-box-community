@@ -1,8 +1,10 @@
+import 'package:c_box/models/user_model.dart';
 import 'package:c_box/navigation_bar/navigation_bar.dart';
 import 'package:c_box/pages/AuthPage/Login.dart';
 import 'package:c_box/pages/AuthPage/OtpVerify.dart';
 import 'package:c_box/services/Authentication.dart';
 import 'package:email_auth/email_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -19,7 +21,7 @@ class _SignUpState extends State<SignUp> {
   TextEditingController passwordC= TextEditingController();
 
   TextEditingController cPasswordC= TextEditingController();
-
+  TextEditingController userNameC =  TextEditingController();
 
 
   void showLoading(){
@@ -54,11 +56,12 @@ class _SignUpState extends State<SignUp> {
 
   void CheckValue() async
   {
+    String userName = userNameC.text.trim();
     String email= emailC.text.trim();
     String password= passwordC.text.trim();
     String cPassword= cPasswordC.text.trim();
 
-    if(email.isEmpty || password.isEmpty || cPassword.isEmpty )
+    if(userName.isEmpty || email.isEmpty || password.isEmpty || cPassword.isEmpty )
       {
         print("enter all the field");
         showUpdate("enter all the field");
@@ -76,10 +79,20 @@ class _SignUpState extends State<SignUp> {
          String res = await SignUpUser(email, password);
          if(res == "success")
            {
+             User? user= FirebaseAuth.instance.currentUser;
+             UserModel userModel = UserModel(
+               userName: userName,
+               email: email,
+               password: password,
+               uid: user!.uid!,
+               followers: [],
+               following: [],
+             );
+
              showUpdate("account create successfully");
              // navigating next User
              Navigator.pop(context);
-             Navigator.push(context, MaterialPageRoute(builder: (context)=> Otpverify()));
+             Navigator.push(context, MaterialPageRoute(builder: (context)=> Otpverify(userModel:  userModel,)));
            }
          else{
 
@@ -90,8 +103,7 @@ class _SignUpState extends State<SignUp> {
 
          }
 
-
-
+        // sendOtp();
 
 
       }
@@ -99,12 +111,31 @@ class _SignUpState extends State<SignUp> {
     }
   }
 
+  void sendOtp() async
+  {
+    emailAuth = new EmailAuth(sessionName: "Verify your C-Box Account");
+
+    print("otp send function called");
+     bool res= await  emailAuth.sendOtp(recipientMail: emailC.text.trim());
+     if(res)
+       {
+         print("otp send to your email");
+       }
+
+  }
+
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    emailAuth = new EmailAuth(sessionName: "Verify your C-Box Account");
+
+    // emailAuth.config( {
+    //   "server": "http//localhost:64528",
+    //   "serverKey": "null"
+    // });
+
+
   }
 
   @override
@@ -161,6 +192,32 @@ class _SignUpState extends State<SignUp> {
                       ],
                     ),
                     SizedBox(height: 40),
+                    Text("username"),
+                    Container(
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.blue.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: Colors.black45, width: 1),
+                      ),
+                      child: TextField(
+                        cursorColor: Colors.black87,
+                        cursorWidth: 1,
+                        cursorHeight: 20,
+                        controller: userNameC,
+                        decoration: InputDecoration(
+                          hintStyle: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w300,
+                              color: Colors.black45),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(4),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 30),
                     Text("Email"),
                     Container(
                       height: 40,

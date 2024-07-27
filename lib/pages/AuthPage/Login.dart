@@ -1,6 +1,8 @@
+import 'package:c_box/models/user_model.dart';
 import 'package:c_box/navigation_bar/navigation_bar.dart';
 import 'package:c_box/pages/AuthPage/signup.dart';
 import 'package:c_box/services/Authentication.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -68,10 +70,21 @@ class _LoginState extends State<Login> {
         String res = await SignInUser(email, password);
         if(res == "success")
         {
+          User? user= FirebaseAuth.instance.currentUser;
+          UserModel?  userModel = await getUserModel(user!.uid.toString());
           showUpdate("account Login successfully");
           // navigating next User
           Navigator.pop(context);
-          Navigator.push(context, MaterialPageRoute(builder: (context)=> Navigation_Bar()));
+          if(userModel != null)
+            {
+              Navigator.push(context, MaterialPageRoute(builder: (context)=> Navigation_Bar(userModel:  userModel,)));
+            }
+          else
+            {
+              print("user data are not featch");
+
+            }
+
         }
         else{
 

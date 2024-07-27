@@ -2,8 +2,11 @@ import 'package:c_box/pages/user_detail_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../../models/user_model.dart';
+
 class Otpverify extends StatefulWidget {
-  const Otpverify({super.key});
+  final UserModel userModel;
+  Otpverify({super.key, required this.userModel});
 
   @override
   State<Otpverify> createState() => _OtpverifyState();
@@ -79,7 +82,7 @@ class _OtpverifyState extends State<Otpverify> {
                         onPressed: () {
                           // goto  userdetail
 
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=> UserDetailScreen()));
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=> UserDetailScreen(userModel: widget.userModel,)));
                         },
                         child: Text(
                           "Verify",

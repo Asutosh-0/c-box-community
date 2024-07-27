@@ -1,3 +1,4 @@
+import 'package:c_box/models/user_model.dart';
 import 'package:c_box/pages/Screens/post.dart';
 import 'package:c_box/pages/Screens/profile.dart';
 import 'package:c_box/pages/Screens/search.dart';
@@ -7,7 +8,8 @@ import '../pages/Screens/home.dart';
 
   // ignore: camel_case_types
   class Navigation_Bar extends StatefulWidget {
-    const Navigation_Bar({super.key});
+    final UserModel userModel ;
+    const Navigation_Bar({super.key, required this.userModel});
 
     @override
     State<Navigation_Bar> createState() => _Navigation_Bar();
