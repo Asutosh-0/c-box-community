@@ -1,6 +1,10 @@
+import 'package:c_box/main.dart';
+import 'package:c_box/models/PostModel.dart';
 import 'package:c_box/models/user_model.dart';
 import 'package:c_box/pages/EditProfilePage.dart';
 import 'package:c_box/pages/Screens/post.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -23,44 +27,57 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        elevation: 5,
+        shadowColor: Colors.black,
+
+        actions: [
+          PopupMenuButton<int>(
+            icon: Icon(Icons.more_vert),
+            onSelected: (int result) {
+              // Handle the selected menu item
+              switch (result) {
+                case 0:
+                // Do something for option 1
+                FirebaseAuth.instance.signOut();
+                Navigator.push(context, MaterialPageRoute(builder: (context)=> LoginApp() ));
+                  break;
+                case 1:
+                // Do something for option 2
+                  break;
+                case 2:
+                // Do something for option 3
+                  break;
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
+              const PopupMenuItem<int>(
+                value: 0,
+                child: Text('Log out'),
+              ),
+              const PopupMenuItem<int>(
+                value: 1,
+                child: Text('Option 2'),
+              ),
+              const PopupMenuItem<int>(
+                value: 2,
+                child: Text('Option 3'),
+              ),
+            ],
+          ),
+        ],
+        title: ListTile(
+          leading: Icon(Icons.person_outline),
+          title: Text(widget.userModel.userName!, style: TextStyle(fontSize: 15, color: Colors.black, fontWeight: FontWeight.bold), ),
+
+        ),
+      ) ,
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Top bar
-            SizedBox(
-              height: 60,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  children: [
-                    const Text(
-                      'asutoshsahu',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 24,
-                      ),
-                    ),
-                    const Icon(Icons.keyboard_arrow_down_rounded),
-                    const Spacer(),
-                    SvgPicture.asset(
-                      'assets/icons/add.svg',
-                      height: 24,
-                      width: 24,
-                    ),
-                    const SizedBox(width: 24),
-                    SvgPicture.asset(
-                      'assets/icons/menu.svg',
-                      height: 40,
-                      width: 40,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const Divider(height: 1),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
@@ -77,87 +94,47 @@ class _ProfileState extends State<Profile> {
                             backgroundImage: AssetImage('assets/c_box.png'),
                           ),
                           const SizedBox(width: 24),
-                          Expanded(
-                            child: Column(
-                              children: const [
-                                Text(
-                                  '20',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 18,
-                                  ),
+                          Expanded(child:
+                          Center(child:Container(
+                            width: 120,
+                            height: 30,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
+
                                 ),
-                                Text(
-                                  'Posts',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ],
-                            ),
+                                backgroundColor: Colors.black
+                              ),
+                              onPressed: (){
+                                // Edit profile page add
+
+                              },
+                              child: Text("EditProfile",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 13,color: Colors.white),),
+                            )
                           ),
-                          Expanded(
-                            child: Column(
-                              children: const [
-                                Text(
-                                  '20',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 18,
-                                  ),
-                                ),
-                                Text(
-                                  'Followers',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: Column(
-                              children: const [
-                                Text(
-                                  '20',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 18,
-                                  ),
-                                ),
-                                Text(
-                                  'Following',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                            ))
+
                         ],
                       ),
                     ),
                     const SizedBox(height: 12),
                     // Bio
-                    const Padding(
+                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 20),
                       child: Text(
-                        'Asutosh Sahu',
+                        "${widget.userModel.userName}", // user name
                         style: TextStyle(
                           color: Colors.black,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
                         ),
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.symmetric(horizontal: 20),
-                      child: Text(
-                        'Dream..........',
+                      child: Text( "${widget.userModel.bio}", // bio data
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 14,
@@ -165,10 +142,20 @@ class _ProfileState extends State<Profile> {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Padding(
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      child: Text( "${widget.userModel.address}", // bio data
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 20),
                       child: Text(
-                        'asutosh.sahu@outlook.com',
+                        "${widget.userModel.email}",
                         style: TextStyle(
                           color: Colors.blue,
                           fontSize: 14,
@@ -177,48 +164,150 @@ class _ProfileState extends State<Profile> {
                     ),
                     const SizedBox(height: 14),
                     // Buttons
+                    Divider(),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Row(
                         children: [
-                          ProfileButton(
-                            text: 'Edit Profile',
-                            onTap: () {
-                              // Add your clock event here
-                              print('Edit Profile button tapped');
-                            },
+                          SizedBox(width: 50,),
+                          Expanded(
+                            child: Column(
+                              children:  [
+                                Text(
+                                  "${widget.userModel.followers!.length}",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                Text(
+                                  'Followers',
+                                  style: TextStyle(
+                                    color: Colors.black87,
+                                    fontSize: 14
+
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          const SizedBox(width: 8),
-                          const ProfileButton(text: 'Share Profile'),
+                          Expanded(
+                            child: Column(
+                              children:  [
+                                Text(
+                                  '${widget.userModel.following!.length}',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                Text(
+                                  'Following',
+                                  style: TextStyle(
+                                    color: Colors.black87,
+                                    fontSize: 14
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: 50,),
+
                         ],
                       ),
                     ),
+                    Divider(),
+                    Container(
+                      height: 35,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Expanded(
+                              child: IconButton(
+                                onPressed: (){
+                                },
+                                icon: Icon( Icons.video_library),
+                              )),
+                          Expanded(
+                              child: IconButton(
+                                onPressed: (){
+
+                                },
+                                icon: Icon(Icons.article_outlined),
+                              ))
+                        ],
+
+                      ),
+                    ),
+                    Divider(),
                     const SizedBox(height: 24),
                     // Grid post
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        childAspectRatio: 1 / 1,
-                        crossAxisSpacing: 2,
-                        mainAxisSpacing: 2,
-                      ),
-                      itemBuilder: (context, index) {
-                        final post = listPosts[index];
+                    StreamBuilder(
+                      stream: FirebaseFirestore.instance.collection("PostDetail").where("uid", isEqualTo: widget.userModel.uid ).snapshots(),
+                      builder: (context, snapshot) {
+                        if(snapshot.connectionState == ConnectionState.active)
+                          {
+                            if(snapshot.hasData)
+                              {
+                                var snapData = snapshot.data as QuerySnapshot;
+                                return GridView.builder(
 
-                        return Container(
-                          margin: EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            image: DecorationImage(
-                              image: NetworkImage(post['image']!),
-                              fit: BoxFit.cover,
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 3,
+                                    childAspectRatio: 1 / 1,
+                                    crossAxisSpacing: 2,
+                                    mainAxisSpacing: 2,
+                                  ),
+                                  itemBuilder: (context, index) {
+                                    final post = listPosts[index];
+
+                                    DocumentSnapshot dsnap = snapData.docs[index] as DocumentSnapshot;
+
+                                    PostModel postmodel = PostModel.fromMap(dsnap.data() as Map<String, dynamic>);
+
+                                    return Container(
+                                      margin: EdgeInsets.all(5),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(8),
+                                        image: DecorationImage(
+                                          image: NetworkImage(postmodel.postUrl!),
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  itemCount: snapData.docs.length,
+                                );
+
+
+
+                              }
+                            else{
+                              return Center(
+                                child: Text("No Post"),
+                              );
+                            }
+
+                          }
+                        else{
+                          return Center(
+                            child:SizedBox(
+                              width: 25, // Adjust the width to reduce the size
+                              height: 25, // Adjust the height to reduce the size
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                                strokeWidth: 2.0,
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                      itemCount: listPosts.length,
+                          );
+                        }
+
+                      }
                     ),
                   ],
                 ),
