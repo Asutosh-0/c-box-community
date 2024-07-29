@@ -120,18 +120,17 @@ class _Home extends State<Home> {
           ],
         ),
         actions: [
-          CircleAvatar(
-            backgroundColor: Colors.purple[50],
-            radius: 15,
-            child: const Icon(Icons.notification_add, color: Colors.deepPurple),
-          ),
+
+          IconButton(onPressed: (){}, icon: Icon(Icons.notification_add)),
+
           const SizedBox(width: 10),
-          CircleAvatar(
-            backgroundColor: Colors.purple[50],
-            radius: 15,
-            child: Icon(Icons.send, color: Colors.deepPurple),
-          ),
+
+          IconButton(onPressed: (){}, icon: Icon(Icons.message_outlined)),
+
+
           SizedBox(width: 10),
+          IconButton(onPressed: (){}, icon: Icon(Icons.camera_alt)),
+          SizedBox(width: 10,)
         ],
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(95),

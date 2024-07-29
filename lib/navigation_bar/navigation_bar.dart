@@ -1,9 +1,10 @@
 import 'package:c_box/models/user_model.dart';
+import 'package:c_box/pages/Screens/BlogShowScreen.dart';
+import 'package:c_box/pages/Screens/ReelsScreen.dart';
 import 'package:c_box/pages/Screens/post.dart';
 import 'package:c_box/pages/Screens/profile.dart';
 import 'package:c_box/pages/Screens/search.dart';
 import 'package:flutter/material.dart';
-
 import '../pages/Screens/home.dart';
 
   // ignore: camel_case_types
@@ -17,15 +18,14 @@ import '../pages/Screens/home.dart';
 
   // ignore: camel_case_types
   class _Navigation_Bar extends State<Navigation_Bar> {
-    final List<Widget> _screens = [
+     List<Widget> get _screens => [
       
-      const Home(),
+       Home(),
       Search(),
-      const Post(),
-      Container(
-        color: Colors.redAccent,
-      ),
-      const Profile(),
+      Post(userModel:  widget.userModel,),
+       ReelsScreen(),
+       BlogShowScreen(),
+       Profile(userModel: widget.userModel,),
     ];
 
     int selectedIndex = 0;
@@ -58,6 +58,8 @@ import '../pages/Screens/home.dart';
                       icon: Icon(Icons.add), label: 'Add Post'),
                   BottomNavigationBarItem(
                       icon: Icon(Icons.play_arrow_outlined), label: 'Reels'),
+                  BottomNavigationBarItem(
+                      icon: Icon(Icons.article), label: 'Articles'),
                   BottomNavigationBarItem(
                       icon: Icon(Icons.people), label: 'Profile'),
                 ],
@@ -96,6 +98,11 @@ import '../pages/Screens/home.dart';
                   NavigationRailDestination(
                     icon: Icon(Icons.play_arrow_outlined),
                     selectedIcon: Icon(Icons.play_arrow),
+                    label: Text('Reels'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.article_outlined),
+                    selectedIcon: Icon(Icons.article),
                     label: Text('Reels'),
                   ),
                   NavigationRailDestination(

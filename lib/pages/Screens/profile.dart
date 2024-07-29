@@ -1,10 +1,12 @@
+import 'package:c_box/models/user_model.dart';
 import 'package:c_box/pages/EditProfilePage.dart';
 import 'package:c_box/pages/Screens/post.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class Profile extends StatefulWidget {
-  const Profile({super.key});
+  final UserModel userModel;
+  const Profile({super.key, required this.userModel});
 
   @override
   State<Profile> createState() => _ProfileState();

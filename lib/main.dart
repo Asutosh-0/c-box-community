@@ -40,6 +40,18 @@ void main() async{
 
 }
 
+class SplashScreen extends StatelessWidget {
+  const SplashScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+}
 
 class LoginApp extends StatelessWidget {
   const LoginApp({super.key});
