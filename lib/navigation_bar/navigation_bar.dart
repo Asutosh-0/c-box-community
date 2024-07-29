@@ -20,7 +20,7 @@ import '../pages/Screens/home.dart';
   class _Navigation_Bar extends State<Navigation_Bar> {
      List<Widget> get _screens => [
       
-       Home(),
+       Home(userModel: widget.userModel,),
       Search(),
       Post(userModel:  widget.userModel,),
        ReelsScreen(),

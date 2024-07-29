@@ -1,9 +1,14 @@
+import 'package:c_box/models/PostModel.dart';
+import 'package:c_box/models/user_model.dart';
 import 'package:c_box/pages/comment.dart';
+import 'package:c_box/services/postServices.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:flutter/material.dart';
 
 class Home extends StatefulWidget {
-  const Home({super.key});
+  final UserModel userModel;
+  const Home({super.key, required this.userModel});
 
   @override
   State<Home> createState() => _Home();
@@ -171,111 +176,235 @@ class _Home extends State<Home> {
       body: Center(
         child: SizedBox(
           width: 600,
-          child: CustomScrollView(
-            slivers: [
-              SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.all(8.6),
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        child: Column(
-                          children: [
-                            ListTile(
-                              leading: CircleAvatar(
-                                radius: 18,
-                                backgroundImage: NetworkImage(searchUsers[index]["profileImageUrl"]), // profile image url
-                              ),
-                              title: Text(searchUsers[index]["username"]),
-                              subtitle: Text(searchUsers[index]["fullName"]),
-                              trailing: const Icon(Icons.menu),
-                            ),
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.40,
-                              child: Image(
-                                image: NetworkImage(searchUsers[index]["profileImageUrl"]),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            const SizedBox(height: 15),
-                            Container(
-                              height: 15,
-                              child: Row(
-                                children: [
-                                  IconButton(
-                                    icon: Icon(Icons.favorite_outline, color: Colors.purpleAccent),
-                                    onPressed: () {
-                                      print('Favorite clicked at index $index');
+          child : StreamBuilder(
 
-                                    },
-                                  ),
-                                  SizedBox(width: 5),
-                                  IconButton(
-                                    icon: Icon(Icons.comment_outlined, color: Colors.purpleAccent),
-                                    onPressed: () {
-                                      print('Comment clicked at index $index');
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (context) => const Comment()),
-                                      );
-                                    },
-                                  ),
-                                  SizedBox(width: 5),
-                                  IconButton(
-                                    icon: Icon(Icons.send_outlined, color: Colors.purpleAccent),
-                                    onPressed: () {
-                                      print('Send clicked at index $index');
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: 6),
-                            Container(
-                              padding: EdgeInsets.all(5),
-                              width: MediaQuery.of(context).size.width,
-                              child: Row(
+              stream: FirebaseFirestore.instance.collection("PostDetail").snapshots(),
+              builder: (context, snapshot) {
+
+                if(snapshot.connectionState == ConnectionState.active)
+                {
+                  if(snapshot.hasData)
+                  {
+                    var qsnap = snapshot.data as QuerySnapshot;
+                    return ListView.builder(
+                        itemCount: qsnap.docs.length,
+                        itemBuilder:
+                            (context, index) {
+                          DocumentSnapshot dSnap = qsnap.docs[index] as DocumentSnapshot;
+                          PostModel postModel = PostModel.fromMap(
+                              dSnap.data() as Map<String, dynamic>);
+
+                          return Padding(
+                            padding: const EdgeInsets.all(8.6),
+                            child: SizedBox(
+                              width: MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width,
+                              child: Column(
                                 children: [
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text("${3323} likes", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                                      Container(
-                                        child: Text(
-                                          "having a great day with blowing a mind",
-                                          maxLines: 2,
-                                          style: TextStyle(fontSize: 12),
-                                        ),
-                                      ),
-                                      Text("10 November 2023"),
-                                    ],
-                                  ),
-                                  Expanded(child: Container()),
-                                  IconButton(
-                                    onPressed: () {
-                                      print('Save clicked at index $index');
-                                    },
-                                    icon: Icon(Icons.save_alt_outlined),
-                                  ),
-                                  SizedBox(width: 10),
+
+                                  TopBar(postModel: postModel),
+
+                                  PostBar(postModel: postModel),
+                                  const SizedBox(height: 15),
+
+                                  // Bottom
+                                  ButtomBar(postModel:postModel,userModel: widget.userModel!)
+
                                 ],
                               ),
                             ),
-                          ],
-                        ),
-                      ),
+                          );
+                        }
+
                     );
-                  },
-                  childCount: searchUsers.length,
-                ),
-              ),
-            ],
+
+                  }
+                  else if(snapshot.hasError)
+                  {
+                    return Center(
+                      child: Text("Check Internet"),
+                    );
+
+                  }
+                  else{
+                    return Center(
+                      child: Text("Check Internet"),
+                    );
+                  }
+
+                }
+                else
+                {
+                  return Center(
+                    child:SizedBox(
+                      width: 25, // Adjust the width to reduce the size
+                      height: 25, // Adjust the height to reduce the size
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                        strokeWidth: 2.0,
+                      ),
+                    ),
+                  );
+                }
+
+              }
+          ),
           ),
         ),
+
+    );
+  }
+}
+class TopBar extends StatelessWidget {
+  final PostModel postModel;
+  const TopBar({super.key, required this.postModel});
+
+  @override
+  Widget build(BuildContext context) {
+    return  ListTile(
+      leading: CircleAvatar(
+        radius: 18,
+        backgroundImage: postModel
+            .profilePic != null
+            ? NetworkImage(
+            postModel.profilePic!)
+            : null, // profile image url
+        child: postModel.profilePic ==
+            null
+            ? Icon(Icons.person_outline)
+            : null,
+      ),
+      title: Text(postModel.userName!),
+      // subtitle: Text(postModel.),
+      trailing: const Icon(Icons.menu),
+    ) ;
+  }
+}
+
+class PostBar extends StatelessWidget {
+  final PostModel postModel;
+  const PostBar({super.key, required this.postModel});
+
+  @override
+  Widget build(BuildContext context) {
+    return   SizedBox(
+      height: MediaQuery
+          .of(context)
+          .size
+          .height * 0.50,
+      child: Image(
+        image: NetworkImage(
+            postModel.postUrl!),
+        fit: BoxFit.cover,
       ),
     );
   }
 }
 
-// void main() => runApp(MaterialApp(home: Home()));
+
+class ButtomBar extends StatelessWidget {
+  final PostModel postModel;
+  final UserModel userModel;
+  const ButtomBar({super.key, required this.postModel, required this.userModel});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      child:Column(
+        children: [
+          Container(
+            height: 25,
+            child: Row(
+              children: [
+                IconButton(
+                  icon: Icon(
+                     postModel.likes!.contains(userModel.uid) ? Icons.favorite : Icons.favorite_outline,
+                      color: postModel.likes!.contains(userModel.uid) ? Colors.red: Colors
+                          .black54),
+                  onPressed: () async {
+                    print(
+                        'Favorite clicked at index ');
+                    LikePost(postModel.postId!);
+                  },
+                ),
+                SizedBox(width: 5),
+                IconButton(
+                  icon: Icon(
+                      Icons.comment_outlined,
+                      color: Colors
+                          .black54),
+                  onPressed: () {
+                    print(
+                        'Comment clicked at index ');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (
+                              context) => const Comment()),
+                    );
+                  },
+                ),
+                SizedBox(width: 5),
+                IconButton(
+                  icon: Icon(
+                      Icons.send_outlined,
+                      color: Colors
+                          .black54),
+                  onPressed: () {
+                    print(
+                        'Send clicked at index ');
+                  },
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 6),
+          Container(
+            padding: EdgeInsets.all(5),
+            width: MediaQuery
+                .of(context)
+                .size
+                .width,
+            child: Row(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment
+                      .start,
+                  children: [
+                    Text("${postModel.likes!
+                        .length!} likes",
+                        style: TextStyle(
+
+                            fontSize: 13)),
+                    Container(
+                      child: Text(
+                        "${postModel.caption}",
+                        maxLines: 2,
+                        style: TextStyle(
+                            fontSize: 12),
+                      ),
+                    ),
+                  ],
+                ),
+                Expanded(child: Container()),
+                IconButton(
+                  onPressed: () {
+                    print(
+                        'Save clicked at index ');
+                  },
+                  icon: Icon(Icons
+                      .save_alt_outlined),
+                ),
+                SizedBox(width: 10),
+              ],
+            ),
+          ),
+        ],
+
+      ),
+    );
+  }
+}

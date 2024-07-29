@@ -61,7 +61,7 @@ class _CommentScreenState extends State<Comment> {
           return Scaffold(
             body: Row(
               children: [
-                Expanded(child: HomeScreen()),
+                // Expanded(child: HomeScreen()),
                 VerticalDivider(width: 1),
                 Expanded(child: CommentScreen(comments: comments, controller: _controller)),
               ],
@@ -197,9 +197,9 @@ class CommentWidget extends StatelessWidget {
   }
 }
 
-class HomeScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Home();
-  }
-}
+// class HomeScreen extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Home();
+//   }
+// }

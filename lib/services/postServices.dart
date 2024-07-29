@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:c_box/models/PostModel.dart';
 import 'package:c_box/models/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:uuid/uuid.dart';
 
@@ -62,4 +63,27 @@ Future<String> getImageUrl(File file, String id)async{
     return url;
   }
   
+}
+
+void LikePost(String id)  async
+{
+  DocumentSnapshot snapshot = await FirebaseFirestore.instance.collection("PostDetail").doc(id).get();
+  var uid= FirebaseAuth.instance.currentUser!.uid!;
+
+  Map<String,dynamic> map = snapshot.data() as Map<String,dynamic>;
+
+  if(map["likes"].contains(uid)){
+    await FirebaseFirestore.instance.collection("PostDetail").doc(id).update({
+      "likes": FieldValue.arrayRemove([uid])
+    });
+  }
+  else
+    {
+      await FirebaseFirestore.instance.collection("PostDetail").doc(id).update({
+        "likes":FieldValue.arrayUnion([uid])
+      });
+    }
+
+
+
 }
