@@ -1,6 +1,6 @@
 import 'package:c_box/models/PostModel.dart';
 import 'package:c_box/models/user_model.dart';
-import 'package:c_box/pages/comment.dart';
+import 'package:c_box/pages/commentPage.dart';
 import 'package:c_box/services/postServices.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -257,6 +257,8 @@ class _Home extends State<Home> {
     );
   }
 }
+
+
 class TopBar extends StatelessWidget {
   final PostModel postModel;
   const TopBar({super.key, required this.postModel});
@@ -339,11 +341,9 @@ class ButtomBar extends StatelessWidget {
                   onPressed: () {
                     print(
                         'Comment clicked at index ');
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (
-                              context) => const Comment()),
+                    Navigator.push(context,
+                      MaterialPageRoute(builder: (
+                              context) =>CommentPage(userModel: userModel, postModel: postModel)),
                     );
                   },
                 ),
