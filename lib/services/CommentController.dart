@@ -38,3 +38,24 @@ class CommentController {
     }
   }
 }
+
+void likeComment(String commentId, String postId, String uid) async
+{
+  DocumentSnapshot snapshot=  await FirebaseFirestore.instance.collection("PostDetail").doc(postId).collection("CommentDetail").doc(commentId).get();
+  Map<String, dynamic> map = snapshot.data() as Map<String,dynamic>;
+
+  if(map["likes"].contains(uid))
+    {
+      await FirebaseFirestore.instance.collection("PostDetail").doc(postId).collection("CommentDetail").doc(commentId).update({
+        "likes" : FieldValue.arrayRemove([uid])
+      });
+
+    }else
+      {
+        await FirebaseFirestore.instance.collection("PostDetail").doc(postId).collection("CommentDetail").doc(commentId).update({
+          "likes":FieldValue.arrayUnion([uid])
+        });
+
+      }
+}
+

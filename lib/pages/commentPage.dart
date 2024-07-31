@@ -47,6 +47,7 @@ class _CommentPageState extends State<CommentPage> {
   Widget build(BuildContext context) {
     return   Scaffold(
         appBar: AppBar(
+          leadingWidth: 20,
           title:  ListTile(
             leading:  CircleAvatar(
               child: Icon(Icons.person_outline),
@@ -75,7 +76,7 @@ class _CommentPageState extends State<CommentPage> {
                               itemBuilder: (context, index) {
                                 DocumentSnapshot dSnap = qSnap.docs[index] as DocumentSnapshot;
                                 Comment comment= Comment().fromMap(dSnap.data() as Map<String,dynamic>);
-                                return CommentWidget(comment: comment,);
+                                return CommentWidget(comment: comment,postId: widget.postModel.postId!,uid: widget.userModel.uid!,);
                               },
                             );
 
@@ -139,7 +140,9 @@ class _CommentPageState extends State<CommentPage> {
 
 class CommentWidget extends StatelessWidget {
   final Comment comment;
-  const CommentWidget({super.key, required this.comment});
+  final String postId;
+  final String uid;
+  const CommentWidget({super.key, required this.comment, required this.postId, required this.uid});
 
   @override
   Widget build(BuildContext context) {
@@ -147,28 +150,43 @@ class CommentWidget extends StatelessWidget {
       leading: CircleAvatar(
         child: Icon(Icons.person_outline),
       ),
-      title: Text("${comment.userName}"),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      title: Row(
         children: [
-          Text("${comment.comment}"),
+          Expanded(child: Container(child: Text("${comment.userName}",maxLines: 5,))),
           SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                TextButton(onPressed: () {}, child: Text("Reply")),
-              ],
+            child: Container(
+              child: Row(
+                children: [
+                   InkWell(
+                onTap: (){
+            print("like button click");
+            likeComment(comment.commentId!,postId ,comment.uid! );
+            },
+                     child: Icon(  comment.likes!.contains(uid!) ? Icons.thumb_up:   Icons.thumb_up_alt_outlined,
+                        size: 14,
+                        color: comment.likes!.contains(uid!) ? Colors.black87 : null ,
+                      ),
+                   ),
+                  SizedBox(width: 5,),
+                  Container(child: Text("${comment.likes!.length! >0 ? comment.likes!.length! :""}",style: TextStyle(fontSize: 10),)),
+
+                  SizedBox(width: 5,)
+
+                ],
+              ),
             ),
           ),
         ],
       ),
-      trailing: IconButton(
-        icon: Icon(Icons.favorite_outline
-        ),
-        onPressed: (){
-          print("like button click");
-        },
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("${comment.comment}"),
+          SizedBox(height: 10,),
+          Text("replay",style: TextStyle(fontSize: 13,color: Colors.blue),)
+        ],
       ),
+      
     );
   }
 }
