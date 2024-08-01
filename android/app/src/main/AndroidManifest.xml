@@ -2,7 +2,7 @@
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="c_box"
+        android:label="C Box"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

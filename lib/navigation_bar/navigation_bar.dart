@@ -5,6 +5,7 @@ import 'package:c_box/pages/Screens/post.dart';
 import 'package:c_box/pages/Screens/profile.dart';
 import 'package:c_box/pages/Screens/search.dart';
 import 'package:flutter/material.dart';
+import '../models/blog.dart';
 import '../pages/Screens/home.dart';
 
   // ignore: camel_case_types
@@ -18,17 +19,30 @@ import '../pages/Screens/home.dart';
 
   // ignore: camel_case_types
   class _Navigation_Bar extends State<Navigation_Bar> {
+
+    int selectedIndex = 0;
+    List<Blog> blogs = []; // Store blogs in the Navigation_Bar state
+
+    // Add a new blog to the list and update the state
+    void _addBlog(Blog newBlog) {
+      setState(() {
+        blogs.add(newBlog);
+      });
+    }
+
      List<Widget> get _screens => [
       
        Home(userModel: widget.userModel,),
       Search(),
       Post(userModel:  widget.userModel,),
        ReelsScreen(),
-       BlogShowScreen(),
+       BlogShowScreen(
+         blogs: blogs, // Pass the blogs to BlogShowScreen
+       ),
        Profile(userModel: widget.userModel,),
     ];
 
-    int selectedIndex = 0;
+    // int selectedIndex = 0;
 
     @override
     Widget build(BuildContext context) {
@@ -38,7 +52,7 @@ import '../pages/Screens/home.dart';
         //   leading: Image.asset('c_box.png',width: 100,height: 200,),
         //   // title: const Text('Navigation Bar Demo'),
         // ),
-        bottomNavigationBar: MediaQuery.of(context).size.width < 600
+        bottomNavigationBar: MediaQuery.of(context).size.width < 750
             ? BottomNavigationBar(
                 currentIndex: selectedIndex,
                 unselectedItemColor: Colors.grey,
@@ -68,7 +82,7 @@ import '../pages/Screens/home.dart';
         body: Row(
           
           children: [
-            if (MediaQuery.of(context).size.width >= 600)
+            if (MediaQuery.of(context).size.width >= 750)
               NavigationRail(
                 selectedIndex: selectedIndex,
                 onDestinationSelected: (int index) {
@@ -122,7 +136,7 @@ import '../pages/Screens/home.dart';
                         padding: const EdgeInsets.all(20.0),
                         child: Row(
                         children: [
-                          Image.asset('c_box.png',width: 50,),
+                          Image.asset('assets/c_box.png',width: 50,),
                           Center(
                             child: Container(
                               padding: const EdgeInsets.only(left: 10),
