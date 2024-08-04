@@ -25,7 +25,7 @@ import '../pages/Screens/home.dart';
       Post(userModel:  widget.userModel,),
        ReelsScreen(),
        BlogShowScreen(),
-       Profile(userModel: widget.userModel,),
+       Profile(userModel:  widget.userModel,),
     ];
 
     int selectedIndex = 0;
