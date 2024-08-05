@@ -5,14 +5,19 @@ import 'package:c_box/pages/EditProfilePage.dart';
 import 'package:c_box/pages/chatting/chat_screen.dart';
 import 'package:c_box/pages/Screens/post.dart';
 import 'package:c_box/services/postServices.dart';
+import 'package:c_box/utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:uuid/uuid.dart';
+
+import '../chatting/model/ChatRoomModel.dart';
 
 class Profile extends StatefulWidget {
+  UserModel? selfUser;
   final UserModel userModel;
-  const Profile({super.key, required this.userModel});
+   Profile({super.key, required this.userModel,this.selfUser});
 
   @override
   State<Profile> createState() => _ProfileState();
@@ -37,6 +42,41 @@ class _ProfileState extends State<Profile> {
   // {
   //   userModel = await getUserById(widget.uid);
   // }
+
+  Future<ChatRoomModel> getChatRoomModel( ) async{
+    ChatRoomModel? chatRoomModel;
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection("ChatRoom").where("participants.${widget.selfUser!.uid!}",isEqualTo: true).
+    where("participants.${widget.userModel.uid!}",isEqualTo: true).get();
+
+    if(querySnapshot.docs.length > 0)
+    {
+      Map<String,dynamic> map = querySnapshot.docs[0].data() as Map<String,dynamic>;
+      ChatRoomModel existChatModel = ChatRoomModel.fromMap(map);
+      chatRoomModel = existChatModel;
+      print("exit user");
+    }
+    else
+    {
+      ChatRoomModel newChatModel = ChatRoomModel(
+          chatroomid: Uuid().v1(),
+          lastMessage: "",
+          participants: {
+            "${widget.selfUser!.uid!}" :true,
+            "${widget.userModel.uid!}":true
+          },
+          lastTime: DateTime.now().millisecondsSinceEpoch.toString()
+
+      );
+      chatRoomModel = newChatModel;
+      await FirebaseFirestore.instance.collection("ChatRoom").doc(newChatModel.chatroomid!).set(newChatModel.toMap());
+
+      print("new user add successfully");
+    }
+
+
+    return chatRoomModel;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -134,9 +174,6 @@ class _ProfileState extends State<Profile> {
                                 ))
 
 
-
-
-
                         ],
                       ),
                     ),
@@ -179,9 +216,13 @@ class _ProfileState extends State<Profile> {
                                         ),
                                         backgroundColor: Colors.black
                                     ),
-                                    onPressed: (){
+                                    onPressed: ()async{
+                                      // go to char screen
+                                      showLoading(context);
+                                      ChatRoomModel charRoom = await getChatRoomModel();
+                                      Navigator.pop(context);
                                       // Edit profile page add
-                                      Navigator.push(context, MaterialPageRoute(builder: (context)=>  ChatScreen(targetUser: widget.userModel,) ));
+                                      Navigator.push(context, MaterialPageRoute(builder: (context)=>  ChatScreen(targetUser: widget.userModel,selfUser: widget.selfUser!,chatRoomModel:charRoom ,) ));
 
                                     },
                                     child: Text("Message",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12,color: Colors.white),),

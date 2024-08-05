@@ -6,6 +6,9 @@ import 'package:c_box/services/postServices.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
+
+import '../chatting/model/ChatRoomModel.dart';
 
 class Home extends StatefulWidget {
   final UserModel userModel;
@@ -206,7 +209,7 @@ class _Home extends State<Home> {
                               child: Column(
                                 children: [
 
-                                  TopBar(postModel: postModel),
+                                  TopBar(postModel: postModel,selfUser: widget.userModel,),
 
                                   PostBar(postModel: postModel),
                                   const SizedBox(height: 15),
@@ -263,8 +266,9 @@ class _Home extends State<Home> {
 
 
 class TopBar extends StatefulWidget {
+  final UserModel selfUser;
   final PostModel postModel;
-  const TopBar({super.key, required this.postModel});
+  const TopBar({super.key, required this.postModel, required this.selfUser});
 
   @override
   State<TopBar> createState() => _TopBarState();
@@ -272,7 +276,6 @@ class TopBar extends StatefulWidget {
 
 class _TopBarState extends State<TopBar> {
   UserModel? model;
-
 
   @override
   void initState() {
@@ -291,7 +294,7 @@ class _TopBarState extends State<TopBar> {
         onTap: (){
           if(model != null) {
             Navigator.push(context, MaterialPageRoute(
-                builder: (context) => Profile(userModel: model!,)));
+                builder: (context) => Profile(userModel: model!,selfUser: widget.selfUser,)));
           }
         },
         child: CircleAvatar(

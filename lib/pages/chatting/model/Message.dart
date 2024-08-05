@@ -1,36 +1,36 @@
 class MessageModel{
   String? messageid;
   String? sender;
-  String? fromId;
+  String? toId;
   String? text;
   bool? seen;
-  String? createdon;
+  String? time;
   Type? type;
 
 
 
-  MessageModel({this.messageid ,this.sender, this.text, this.seen, this.createdon,this.fromId,this.type});
+  MessageModel({this.messageid ,this.sender, this.text, this.seen, this.time,this.toId,this.type});
 
 
   MessageModel.fromMap(Map<String,dynamic> map)
   {
-    messageid= map["messageid"];
+    messageid= map["messageId"];
     sender=map["sender"];
-    fromId= map["fromId"];
+    toId= map["toId"];
     text=map["text"];
     seen=map["seen"];
-    createdon=map["createdon"];
+    time=map["time"];
     type = map["type"].toString() == Type.image.name ? Type.image : Type.text;
   }
 
   Map<String,dynamic> toMap(){
     return{
-      "messageid":messageid,
+      "messageId":messageid,
       "sender":sender,
-      "fromId":fromId,
+      "toId":toId,
       "text":text,
       "seen":seen,
-      "createdon":createdon,
+      "time":time,
       "type":type
     };
   }
