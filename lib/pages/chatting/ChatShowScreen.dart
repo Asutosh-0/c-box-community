@@ -1,0 +1,135 @@
+import 'package:c_box/models/user_model.dart';
+import 'package:c_box/pages/chatting/chat_screen.dart';
+import 'package:c_box/pages/chatting/utils/helper.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+
+import '../../services/postServices.dart';
+import 'model/ChatRoomModel.dart';
+
+class ChatShowScreen extends StatelessWidget {
+  final UserModel userModel;
+  const ChatShowScreen({super.key, required this.userModel});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        elevation: 2,
+        shadowColor: Colors.black87,
+        title: const Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "C-Box",
+              style: TextStyle(fontSize: 18, color: Colors.black, fontWeight: FontWeight.w800),
+            ),
+            Text(
+              "  chats",
+              style: TextStyle(
+                fontSize: 11,
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          IconButton(onPressed: (){}, icon: Icon(Icons.notification_add)),
+          SizedBox(width: 10,)
+        ],
+
+      ),
+        body: Container(
+
+          child: StreamBuilder(
+            stream:FirebaseFirestore.instance.collection("ChatRoom").where("participants.${userModel!.uid!}",isEqualTo: true).snapshots(),
+            builder: (context,snapshot){
+              if(snapshot.connectionState == ConnectionState.active)
+              {
+                if(snapshot.hasData)
+                {
+                  QuerySnapshot querySnapshot = snapshot.data as QuerySnapshot;
+
+
+                  return ListView.builder(
+                      itemCount: querySnapshot.docs.length,
+                      itemBuilder: (context,index){
+                        ChatRoomModel? chatRoomModel= ChatRoomModel.fromMap(querySnapshot.docs[index].data() as Map<String, dynamic>);
+
+                        Map<String ,dynamic> participants= chatRoomModel!.participants!;
+
+                        List<String> participantsKey= participants.keys.toList();
+
+                        participantsKey.remove(userModel.uid);
+
+
+                        return FutureBuilder(
+                            future: getUserById(participantsKey[0]),
+                            builder: (context,userData)
+                            {
+                              if(userData.connectionState == ConnectionState.done) {
+                                if(userData.data != null) {
+                                  UserModel targetUser = userData.data as UserModel;
+
+                                  return ListTile(
+                                    onTap: ()
+                                    {
+                                      Navigator.push(context, MaterialPageRoute(builder: (context)=>ChatScreen(targetUser: targetUser, selfUser: userModel, chatRoomModel: chatRoomModel) ));
+                                    },
+                                    title: Text(targetUser.userName.toString(),style: TextStyle(fontSize: 15),),
+                                    subtitle: (chatRoomModel.lastMessage.toString())!= ""? Text(
+                                        chatRoomModel.lastMessage.toString(),style: TextStyle(fontSize: 13,color: Colors.black45),): Text("say hi to your new friend"),
+                                    leading: CircleAvatar(
+                                      radius: 14,
+                                      child: Icon(Icons.person,size: 13,),
+                                    ),
+                                    trailing: Text(getFormatedString(context, chatRoomModel.lastTime!),style: TextStyle(fontSize: 10),),
+                                  );
+                                }
+                                else{
+                                  return Container();
+                                }
+                              }
+                              else{
+                                return Container();
+                              }
+                            });
+
+
+                      });
+
+                }
+                else if(snapshot.hasData)
+                {
+                  return Text(snapshot.error.toString());
+
+                }
+                else
+                {
+                  return Center(
+                    child: Text("no chars"),
+                  );
+                }
+              }
+              else
+              {
+                return  Center(
+                  child:SizedBox(
+                    width: 25, // Adjust the width to reduce the size
+                    height: 25, // Adjust the height to reduce the size
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                      strokeWidth: 2.0,
+                    ),
+                  ),
+                );
+              }
+            },
+          ),
+        ),
+
+    );
+  }
+}

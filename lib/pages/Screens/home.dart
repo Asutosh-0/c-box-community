@@ -1,6 +1,7 @@
 import 'package:c_box/models/PostModel.dart';
 import 'package:c_box/models/user_model.dart';
 import 'package:c_box/pages/Screens/profile.dart';
+import 'package:c_box/pages/chatting/ChatShowScreen.dart';
 import 'package:c_box/pages/commentPage.dart';
 import 'package:c_box/services/postServices.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -134,7 +135,9 @@ class _Home extends State<Home> {
 
           const SizedBox(width: 10),
 
-          IconButton(onPressed: (){}, icon: Icon(Icons.message_outlined)),
+          IconButton(onPressed: (){
+            Navigator.push(context, MaterialPageRoute(builder: (context)=> ChatShowScreen(userModel: widget.userModel) ));
+          }, icon: Icon(Icons.message_outlined)),
 
 
           SizedBox(width: 10),
