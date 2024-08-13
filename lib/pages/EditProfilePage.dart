@@ -1,23 +1,94 @@
+import 'dart:io';
+
+import 'package:c_box/models/user_model.dart';
+import 'package:c_box/services/Authentication.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../utils.dart';
 
 class Editprofile extends StatefulWidget {
-  const Editprofile({super.key});
+  final UserModel userModel;
+   Editprofile({super.key, required this.userModel});
 
   @override
   State<Editprofile> createState() => _EditprofileState();
 }
 
 class _EditprofileState extends State<Editprofile> {
+  TextEditingController? fullNameC;
+
+  TextEditingController? BioC;
+
+  TextEditingController? AdddressC;
+
+  XFile? _file;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    fullNameC=TextEditingController(text: widget.userModel.fullName);
+    BioC= TextEditingController(text: widget.userModel.bio);
+    AdddressC= TextEditingController(text: widget.userModel.address);
+  }
+
+
+  void UpdateValue() async
+  {
+    String fullName = fullNameC!.text.trim();
+    String bio= BioC!.text.trim();
+    String address= AdddressC!.text.trim();
+
+    if(fullName.isNotEmpty || bio.isNotEmpty || address .isNotEmpty ){
+
+      widget.userModel.fullName = fullName;
+      widget.userModel.bio = bio;
+      widget.userModel.address= address;
+      if(_file!= null)
+        {
+          showLoading(context);
+          String res= await getProfilePicImageUrl(File(_file!.path), widget.userModel.uid!);
+          Navigator.pop(context);
+          if(res!= "Error")
+            {
+              widget.userModel.profilePic = res;
+            }
+        }
+
+
+      showLoading(context);
+      String res =  await UpdateUserModel(widget.userModel);
+      if(res =="success")
+      {
+        Navigator.pop(context);
+        showUpdate("Account update successfully",context);
+      }
+      else{
+        print(res);
+        showUpdate(res,context);
+        Navigator.pop(context);
+      }
+      Navigator.pop(context);
+
+    }
+    else
+    {
+      print("plesed enter the field");
+      showUpdate("plesed enter the field",context);
+
+    }
+
+  }
+
   @override
   Widget build(BuildContext context) {
-    String? gender;
-
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.lightBlue,
+        elevation: 2,
+        shadowColor: Colors.black87,
         centerTitle: true,
         title: Text("Edit Profile",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 17),),
-        leading: Icon(Icons.arrow_back),
         actions: [
 
         ],
@@ -30,200 +101,169 @@ class _EditprofileState extends State<Editprofile> {
             width: 600,
             child: Column(
               children: [
-                Stack(
-                  children: [
-                    Container(
-                      height: 64,
-                      color: Colors.lightBlue,
+                SizedBox(height: 30,),
+                SizedBox(
+                  width: 60,
+                  height: 60,
+                  child: InkWell(
+                    onTap: ()async{
+                      // take profile pic
+                      XFile? file  = await ImagePicker().pickImage(source: ImageSource.gallery);
+                      if(file!= null)
+                        {
+                          setState(() {
+                            _file= file;
+                          });
+                        }
+
+
+                    },
+                    child: CircleAvatar(
+                      backgroundImage:_file== null ?widget.userModel.profilePic != null
+                          ? NetworkImage(widget.userModel.profilePic!)
+                          : null: FileImage(File(_file!.path)),
+                      child:_file== null  ?widget.userModel.profilePic == null
+                          ? Icon(Icons.person_outline_rounded)
+                          : null : null,
                     ),
-                    Center(
-                      child: Container(
-                        margin: EdgeInsets.only(bottom: 10),
-                        width: 128, // 2 * radius of CircleAvatar
-                        height: 128,
-            
-                        decoration: BoxDecoration(
-                          // boxShadow: [
-                          //   BoxShadow(
-                          //     color: Colors.black.withOpacity(0.5), // Shadow color with opacity
-                          //     spreadRadius: 3, // Spread radius
-                          //     blurRadius: 1, // Blur radius
-                          //     offset: Offset(5, 5), // Offset in x and y directions
-                          //   ),
-                          // ],
-            
-                          color: Colors.blueAccent,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.white, // border color
-                            width: 4.0, // border width
-                          ),
-                        ),
-                        child: CircleAvatar(
-                          radius: 64,
-                          backgroundColor: Colors.white54,
-                          // backgroundImage: NetworkImage('https://via.placeholder.com/150'),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: -10,
-                      left: MediaQuery.of(context).size.width*0.55,
-                      child: IconButton(
-                        onPressed: (){
-                          print("Image ");
-                        },
-                        icon: const Icon(Icons.add_a_photo),
-            
-                      ),
-                    )
-            
-                  ],
-                ),
-                Text("change Picture",style: TextStyle(fontSize:14 ,fontWeight: FontWeight.bold,color: Colors.black,
-                  shadows: [
-                  Shadow(
-                    // offset: Offset(2.0, 2.0),
-                    blurRadius: 1.0,
-                    color: Color.fromARGB(255, 0, 0, 0),
                   ),
-                ],),),
+                ),
+
+                Text("change Picture",style: TextStyle(fontSize: 12,color: Colors.black),),
+
+
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 20),
                   width: MediaQuery.of(context).size.width,
                   // color: Colors.blueAccent,
-            
+
                   child:
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     // mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Text("User Name",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold,color: Colors.black),),
-                      SizedBox(height: 5,),
-                      Container(
-                        height: 45,
-                        color: Colors.lightBlue.withOpacity(0.1),
-                        child: TextField(
-                          decoration:InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(5),
-            
-                            )
-            
-                          )
-                        ),
+                      SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Text("User Name"),
+                        ],
                       ),
-                      SizedBox(height: 10,),
-                      Text("Gender",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold,color: Colors.black),),
-                      SizedBox(height: 5,),
                       Container(
-                        height: 45,
-                        padding: EdgeInsets.all(3),
+                        width: MediaQuery.of(context).size.width,
+                        height: 40,
                         decoration: BoxDecoration(
-                          color: Colors.lightBlue.withOpacity(0.1),
+                          color: Colors.blue.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(4),
-                          border: Border.all(
-                            width: 1,
-                            color: Colors.black54,
-                          ),
+                          border: Border.all(color: Colors.black45, width: 1),
                         ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: gender,
-                            hint: Text(
-                              "Select Gender",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 11,
-                              ),
+                        child:Center(child: Text(widget.userModel.userName!,style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w300,
+                            color: Colors.black),))
+                      ),
+                      SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Text(" Full Name"),
+                        ],
+                      ),
+                      Container(
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: Colors.black45, width: 1),
+                        ),
+                        child: TextField(
+                          controller:fullNameC ,
+
+                          cursorColor: Colors.black87,
+                          cursorWidth: 1,
+                          cursorHeight: 20,
+                          decoration: InputDecoration(
+                            hintText: "enter your full name",
+                            hintStyle: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w300,
+                                color: Colors.black45),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(4),
+                              borderSide: BorderSide.none,
                             ),
-                            items: <String>['Male', 'Female']
-                                .map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(
-                                  value,
-                                  style: TextStyle(fontSize: 12,),
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                gender = newValue;
-                              });
-                            },
-                            isExpanded: true,
                           ),
                         ),
                       ),
-                      SizedBox(height: 10,),
-                      Text("Job Title",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold,color: Colors.black),),
-                      SizedBox(height: 5,),
+                      SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Text("Bio"),
+                        ],
+                      ),
                       Container(
-                        height: 45,
-                        color: Colors.lightBlue.withOpacity(0.1),
-            
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: Colors.black45, width: 1),
+                        ),
                         child: TextField(
-                          decoration:InputDecoration(
-            
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-            
-                              )
-            
+                          controller: BioC,
+                          cursorColor: Colors.black87,
+                          cursorWidth: 1,
+                          cursorHeight: 20,
+                          decoration: InputDecoration(
+                            hintText: "write something about your self..",
+                            hintStyle: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w300,
+                                color: Colors.black45),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(4),
+                              borderSide: BorderSide.none,
+                            ),
                           ),
-            
                         ),
                       ),
-                      SizedBox(height: 10,),
-                      Text("Bio",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold,color: Colors.black),),
-                      SizedBox(height: 5,),
+                      SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Text("Address"),
+                        ],
+                      ),
                       Container(
-                        height: 45,
-                        color: Colors.lightBlue.withOpacity(0.1),
-            
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: Colors.black45, width: 1),
+                        ),
                         child: TextField(
-                          decoration:InputDecoration(
-            
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-            
-                              )
-            
+                          controller: AdddressC,
+                          cursorColor: Colors.black87,
+                          cursorWidth: 1,
+                          cursorHeight: 20,
+                          decoration: InputDecoration(
+                            hintStyle: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w300,
+                                color: Colors.black45),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(4),
+                              borderSide: BorderSide.none,
+                            ),
                           ),
-            
                         ),
                       ),
-                      SizedBox(height: 10,),
-                      Text("Address",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold,color: Colors.black),),
-                      SizedBox(height: 5,),
-                      Container(height: 70,
-            
-                        color: Colors.lightBlue.withOpacity(0.1),
-            
-                        child: TextField(
-                          decoration:InputDecoration(
-            
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-            
-                              )
-            
-                          ),
-                          minLines: 2,
-                          maxLines: 2,
-            
-                        ),
-                      ),
+
                       SizedBox(height: 10,),
                       Center(
                         child: Container(
                           height: 40,
                           width: MediaQuery.of(context).size.width*0.8,
                           child: ElevatedButton(
-            
+
                             onPressed: (){
-            
+                              UpdateValue();
                             },
                             child: Text("update",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15,color: Colors.white),),
                             style: ElevatedButton.styleFrom(
@@ -232,24 +272,24 @@ class _EditprofileState extends State<Editprofile> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(5)
                               )
-            
+
                             ),
                           ),
                         ),
                       ),
                       SizedBox(height: 10,),
-            
-            
-            
-            
+
+
+
+
                     ],
                   ),
                 )
-            
-            
-            
-            
-            
+
+
+
+
+
               ],
             ),
           ),

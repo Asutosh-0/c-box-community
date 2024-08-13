@@ -8,7 +8,7 @@ class PostModel{
   List? likes;
   int? commentCount = 0;
   int? shareCount = 0;
-  bool? isVideo = false;
+  bool? isVideo;
 
   PostModel({
     this.userName,

@@ -1,9 +1,13 @@
 import 'dart:io';
 import 'package:c_box/models/user_model.dart';
+import 'package:c_box/navigation_bar/navigation_bar.dart';
+import 'package:c_box/pages/Screens/profile.dart';
+import 'package:c_box/pages/VideoShowScreen.dart';
 import 'package:c_box/services/postServices.dart';
 import 'package:c_box/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:video_player/video_player.dart';
 
 class Post extends StatefulWidget {
   final UserModel userModel;
@@ -16,6 +20,7 @@ class Post extends StatefulWidget {
 class _Post extends State<Post> {
   XFile? _file;
   TextEditingController captionC= TextEditingController();
+  bool isVideo= false;
 
   void checkValue() async
   {
@@ -24,7 +29,7 @@ class _Post extends State<Post> {
     if(_file != null)
       {
         showLoading(context);
-        String response =  await UploadPost(widget.userModel, File(_file!.path), caption, false);
+        String response =  await UploadPost(widget.userModel, File(_file!.path), caption, isVideo);
         if(response == "success")
           {
             Navigator.pop(context);
@@ -33,6 +38,7 @@ class _Post extends State<Post> {
             setState(() {
               _file = null;
               captionC.clear();
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> Navigation_Bar(userModel: widget.userModel)));
             });
 
           }
@@ -53,6 +59,8 @@ class _Post extends State<Post> {
       }
 
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -114,6 +122,7 @@ class _Post extends State<Post> {
                         ),
                         SizedBox(height: 20,),
 
+                        if(isVideo == false )
                         Expanded(child: (Container(
                           width: MediaQuery.of(context).size.width,
 
@@ -125,8 +134,23 @@ class _Post extends State<Post> {
                           ),
 
 
-                        )))
+                        ))),
 
+
+                        if(isVideo == true)
+                          Expanded(child: (Container(
+                            width: MediaQuery.of(context).size.width,
+
+                            // decoration: BoxDecoration(
+                            //     image:  _file != null ? DecorationImage(
+                            //       image: FileImage(File(_file!.path)),
+                            //     ) : null
+                            //
+                            // ),
+                           child: VideoShowScreen(file: File(_file!.path),),
+
+
+                          ))),
 
                       ],
                     ),
@@ -148,12 +172,12 @@ class _Post extends State<Post> {
                               ),
 
                               onPressed: ()  async{
-                                XFile? file = await  ImagePicker().pickImage(source: ImageSource.gallery);
+                                XFile? file = await  ImagePicker().pickImage(source: ImageSource.gallery,imageQuality:10 );
                                 if(file != null)
                                 {
                                   setState(() {
                                     _file = file;
-
+                                    isVideo= false;
                                   });
                                 }
 
@@ -174,7 +198,27 @@ class _Post extends State<Post> {
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                               ),
-                              onPressed: () {},
+                              onPressed: () async {
+                                try {
+                                  XFile? file = await ImagePicker().pickVideo(
+                                    source: ImageSource.gallery,
+
+                                  );
+                                  if (file != null) {
+                                    setState(() {
+                                      _file = file;
+                                      isVideo = true;
+                                    });
+                                  } else {
+                                    setState(() {
+
+                                    });
+                                  }
+                                } catch (e) {
+                                  showUpdate("An error occurred while selecting the file", context);
+                                }
+                              },
+
                               child: Center(child: Text("video",
                                 style: TextStyle(fontSize: 15,
                                     fontWeight: FontWeight.w300,

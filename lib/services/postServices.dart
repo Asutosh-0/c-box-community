@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:c_box/models/PostModel.dart';
@@ -93,4 +94,43 @@ Future<UserModel> getUserById(String uid) async
   DocumentSnapshot snapshot= await FirebaseFirestore.instance.collection("UserDetail").doc(uid).get();
   UserModel userModel= UserModel.fromMap(snapshot.data() as Map<String,dynamic>);
   return userModel;
+}
+
+
+FollowUser(UserModel model) async
+{
+
+  String id= FirebaseAuth.instance.currentUser!.uid!;
+
+  if(model.followers!.contains(id))
+  {
+    model.followers!.remove(id);
+    await FirebaseFirestore.instance.collection("UserDetail").doc(model!.uid).update(model.toMap());
+    log("unfollow");
+
+    await FirebaseFirestore.instance.collection("UserDetail").doc(id).update({
+      "following": FieldValue.arrayRemove([model.uid])
+    });
+    print("update value");
+    return "unfollow";
+
+  }
+  else{
+    model.followers!.add(id);
+    await FirebaseFirestore.instance.collection("UserDetail").doc(model!.uid).update(model.toMap());
+    log("follow");
+
+
+    await FirebaseFirestore.instance.collection("UserDetail").doc(id).update({
+      "following": FieldValue.arrayUnion([model.uid])
+    });
+    print("update value");
+
+
+
+
+
+    return "follow";
+  }
+
 }

@@ -1,8 +1,11 @@
 
+import 'dart:io';
+
 import 'package:c_box/models/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 Future<String> SignUpUser(String email, String password) async
 {
@@ -65,6 +68,21 @@ Future<String> SaveUserModel(UserModel usermodel) async
 
       }
 }
+Future<String> UpdateUserModel(UserModel usermodel) async
+{
+  try
+  {
+    FirebaseFirestore.instance.collection("UserDetail").doc(usermodel.uid!).update(usermodel.toMap());
+
+    return "success";
+
+  }
+  catch (er){
+
+    return er.toString();
+
+  }
+}
 
 Future<UserModel?> getUserModel(String uid)async{
 
@@ -84,4 +102,31 @@ Future<UserModel?> getUserModel(String uid)async{
   }
     return userModel!;
   
+}
+
+Future<String> getProfilePicImageUrl(File file, String id)async{
+
+  String url = "Error";
+
+  try {
+    Reference reference = FirebaseStorage.instance.ref().child("ProfilePic/$id");
+    UploadTask uploadTask = reference.putFile(file);
+    TaskSnapshot snapshot = await uploadTask;
+    url =  await snapshot.ref.getDownloadURL();
+
+    print(url);
+    return url;
+  }
+  catch(er)
+  {
+    print(er);
+    return url;
+  }
+
+}
+
+void UpdateAllPostProfilePic(UserModel userModel) async
+{
+
+
 }

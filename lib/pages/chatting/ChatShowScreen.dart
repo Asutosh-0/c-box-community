@@ -39,97 +39,100 @@ class ChatShowScreen extends StatelessWidget {
           IconButton(onPressed: (){}, icon: Icon(Icons.notification_add)),
           SizedBox(width: 10,)
         ],
-
       ),
-        body: Container(
+      body: Container(
+        child: StreamBuilder(
+          stream: FirebaseFirestore.instance
+              .collection("ChatRoom")
+              .where("participants.${userModel.uid}", isEqualTo: true)
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.active) {
+              if (snapshot.hasData) {
+                QuerySnapshot querySnapshot = snapshot.data as QuerySnapshot;
 
-          child: StreamBuilder(
-            stream:FirebaseFirestore.instance.collection("ChatRoom").where("participants.${userModel!.uid!}",isEqualTo: true).snapshots(),
-            builder: (context,snapshot){
-              if(snapshot.connectionState == ConnectionState.active)
-              {
-                if(snapshot.hasData)
-                {
-                  QuerySnapshot querySnapshot = snapshot.data as QuerySnapshot;
+                return ListView.builder(
+                    itemCount: querySnapshot.docs.length,
+                    itemBuilder: (context, index) {
+                      ChatRoomModel chatRoomModel = ChatRoomModel.fromMap(
+                          querySnapshot.docs[index].data() as Map<String, dynamic>);
 
+                      Map<String, dynamic> participants = chatRoomModel.participants!;
 
-                  return ListView.builder(
-                      itemCount: querySnapshot.docs.length,
-                      itemBuilder: (context,index){
-                        ChatRoomModel? chatRoomModel= ChatRoomModel.fromMap(querySnapshot.docs[index].data() as Map<String, dynamic>);
+                      List<String> participantsKey = participants.keys.toList();
 
-                        Map<String ,dynamic> participants= chatRoomModel!.participants!;
+                      participantsKey.remove(userModel.uid);
 
-                        List<String> participantsKey= participants.keys.toList();
+                      return FutureBuilder(
+                          future: getUserById(participantsKey[0]),
+                          builder: (context, userData) {
+                            if (userData.connectionState == ConnectionState.done) {
+                              if (userData.hasData) {
+                                UserModel targetUser = userData.data as UserModel;
 
-                        participantsKey.remove(userModel.uid);
-
-
-                        return FutureBuilder(
-                            future: getUserById(participantsKey[0]),
-                            builder: (context,userData)
-                            {
-                              if(userData.connectionState == ConnectionState.done) {
-                                if(userData.data != null) {
-                                  UserModel targetUser = userData.data as UserModel;
-
-                                  return ListTile(
-                                    onTap: ()
-                                    {
-                                      Navigator.push(context, MaterialPageRoute(builder: (context)=>ChatScreen(targetUser: targetUser, selfUser: userModel, chatRoomModel: chatRoomModel) ));
-                                    },
-                                    title: Text(targetUser.userName.toString(),style: TextStyle(fontSize: 15),),
-                                    subtitle: (chatRoomModel.lastMessage.toString())!= ""? Text(
-                                        chatRoomModel.lastMessage.toString(),style: TextStyle(fontSize: 13,color: Colors.black45),): Text("say hi to your new friend"),
-                                    leading: CircleAvatar(
-                                      radius: 14,
-                                      child: Icon(Icons.person,size: 13,),
-                                    ),
-                                    trailing: Text(getFormatedString(context, chatRoomModel.lastTime!),style: TextStyle(fontSize: 10),),
-                                  );
-                                }
-                                else{
-                                  return Container();
-                                }
-                              }
-                              else{
+                                return ListTile(
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => ChatScreen(
+                                              targetUser: targetUser,
+                                              selfUser: userModel,
+                                              chatRoomModel: chatRoomModel,
+                                            )));
+                                  },
+                                  title: Text(
+                                    targetUser.userName.toString(),
+                                    style: TextStyle(fontSize: 15),
+                                  ),
+                                  subtitle: chatRoomModel.lastMessage.toString() != ""
+                                      ? Text(
+                                    chatRoomModel.lastMessage.toString(),
+                                    style: TextStyle(fontSize: 13, color: Colors.black45),
+                                  )
+                                      : Text("Say hi to your new friend"),
+                                  leading: CircleAvatar(
+                                    radius: 17,
+                                    backgroundImage: targetUser.profilePic != null
+                                        ? NetworkImage(targetUser.profilePic!)
+                                        : null,
+                                    child: targetUser.profilePic == null
+                                        ? Icon(Icons.person, size: 17)
+                                        : null,
+                                  ),
+                                  trailing: Text(
+                                    getFormatedString(context, chatRoomModel.lastTime!),
+                                    style: TextStyle(fontSize: 10),
+                                  ),
+                                );
+                              } else {
                                 return Container();
                               }
-                            });
-
-
-                      });
-
-                }
-                else if(snapshot.hasData)
-                {
-                  return Text(snapshot.error.toString());
-
-                }
-                else
-                {
-                  return Center(
-                    child: Text("no chars"),
-                  );
-                }
-              }
-              else
-              {
-                return  Center(
-                  child:SizedBox(
-                    width: 25, // Adjust the width to reduce the size
-                    height: 25, // Adjust the height to reduce the size
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                      strokeWidth: 2.0,
-                    ),
-                  ),
+                            } else {
+                               return Container();
+                            }
+                          });
+                    });
+              } else {
+                return Center(
+                  child: Text("No chats"),
                 );
               }
-            },
-          ),
+            } else {
+              return Center(
+                child: SizedBox(
+                  width: 25,
+                  height: 25,
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                    strokeWidth: 2.0,
+                  ),
+                ),
+              );
+            }
+          },
         ),
-
+      ),
     );
   }
 }
