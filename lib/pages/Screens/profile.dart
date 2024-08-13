@@ -2,8 +2,9 @@ import 'package:c_box/main.dart';
 import 'package:c_box/models/PostModel.dart';
 import 'package:c_box/models/user_model.dart';
 import 'package:c_box/pages/EditProfilePage.dart';
+import 'package:c_box/pages/PostShowScreen.dart';
 import 'package:c_box/pages/chatting/chat_screen.dart';
-import 'package:c_box/pages/Screens/post.dart';
+
 import 'package:c_box/services/postServices.dart';
 import 'package:c_box/utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -25,23 +26,37 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
 
-  final List<Map<String, String>> listPosts = List.generate(
-    20,
-    (index) => {
-      'image': 'https://cdn.pixabay.com/photo/2016/03/15/17/07/girl-1258727_640.jpg',
-    },
-  );
-@override
+
+  String? res;
+  bool check= false;
+
+  @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    // getModel();
+    //
+    if(check== false) {
+      if (widget.userModel.followers!.contains(
+          FirebaseAuth.instance.currentUser!.uid!)) {
+        res = "unfollow";
+      }
+      else {
+        res = "follow";
+      }
+      check =true;
+    }
   }
 
-  // void getModel() async
-  // {
-  //   userModel = await getUserById(widget.uid);
-  // }
+  checkRes() async
+  {
+    String value =  await  FollowUser(widget.userModel!);
+    res = value;
+
+    // setState(() {
+    // });
+
+
+  }
 
   Future<ChatRoomModel> getChatRoomModel( ) async{
     ChatRoomModel? chatRoomModel;
@@ -144,9 +159,15 @@ class _ProfileState extends State<Profile> {
                       child: Row(
                         mainAxisAlignment: widget.userModel!.uid != FirebaseAuth.instance.currentUser!.uid!.toString() ? MainAxisAlignment.start :MainAxisAlignment.start ,
                         children: [
-                          const CircleAvatar(
+                          CircleAvatar(
                             radius: 50,
-                            backgroundImage: AssetImage('assets/c_box.png'),
+                            backgroundColor: Colors.lightBlueAccent.withOpacity(0.4),
+                            backgroundImage: widget.userModel.profilePic != null
+                                ? NetworkImage(widget.userModel.profilePic!)
+                                : AssetImage('assets/c_box.png'),
+                            child: widget.userModel.profilePic == null
+                                ? Icon(Icons.person)
+                                : null,
                           ),
                           const SizedBox(width: 24),
                             if(widget.userModel!.uid == FirebaseAuth.instance.currentUser!.uid!.toString() )
@@ -166,7 +187,7 @@ class _ProfileState extends State<Profile> {
                                         // Edit profile page add
 
 
-                                        Navigator.push(context, MaterialPageRoute(builder: (context)=>Editprofile() ));
+                                        Navigator.push(context, MaterialPageRoute(builder: (context)=>Editprofile(userModel:  widget.userModel,) ));
                                       },
                                       child: Text("EditProfile",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 13,color: Colors.white),),
                                     )
@@ -200,8 +221,11 @@ class _ProfileState extends State<Profile> {
                                     onPressed: (){
                                       // Edit profile page add
 
+                                      setState(() {
+                                        checkRes();
+                                      });
                                     },
-                                    child: Text("follow",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 13,color: Colors.white),),
+                                    child: Text(res!,style: TextStyle(fontWeight: FontWeight.bold,fontSize: 13,color: Colors.white),),
                                   )
                               ),
                               SizedBox(width: 15,),
@@ -381,20 +405,26 @@ class _ProfileState extends State<Profile> {
                                     crossAxisSpacing: 2,
                                     mainAxisSpacing: 2,
                                   ),
-                                  itemBuilder: (context, index) {
-                                    final post = listPosts[index];
 
+                                  itemBuilder: (context, index) {
                                     DocumentSnapshot dsnap = snapData.docs[index] as DocumentSnapshot;
 
                                     PostModel postmodel = PostModel.fromMap(dsnap.data() as Map<String, dynamic>);
 
-                                    return Container(
-                                      margin: EdgeInsets.all(5),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(8),
-                                        image: DecorationImage(
-                                          image: NetworkImage(postmodel.postUrl!),
-                                          fit: BoxFit.cover,
+                                    return InkWell(
+                                      onTap: (){
+                                        // post show
+                                        Navigator.push(context, MaterialPageRoute(builder: (context)=>  Postshowscreen(postModel: postmodel, userModel: widget.userModel) ));
+
+                                      },
+                                      child:  Container(
+                                        margin: EdgeInsets.all(5),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(8),
+                                          image: DecorationImage(
+                                            image: NetworkImage(postmodel.postUrl!),
+                                            fit: BoxFit.cover,
+                                          ),
                                         ),
                                       ),
                                     );
@@ -432,48 +462,6 @@ class _ProfileState extends State<Profile> {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class ProfileButton extends StatelessWidget {
-  const ProfileButton({
-    Key? key,
-    required this.text,
-    this.onTap,
-  }) : super(key: key);
-
-  final String text;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: InkWell(
-        onTap: (){
-          Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Editprofile()),
-                );
-        },
-        child: Container(
-          height: 36,
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Center(
-            child: Text(
-              text,
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
-                fontSize: 16,
-              ),
-            ),
-          ),
         ),
       ),
     );

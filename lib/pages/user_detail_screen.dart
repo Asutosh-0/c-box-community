@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:c_box/models/user_model.dart';
 import 'package:c_box/navigation_bar/navigation_bar.dart';
 import 'package:c_box/services/Authentication.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class UserDetailScreen extends StatefulWidget {
   final UserModel userModel;
@@ -16,6 +19,8 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
   TextEditingController fullNameC= TextEditingController();
   TextEditingController bioC= TextEditingController();
   TextEditingController addressC= TextEditingController();
+  XFile? _file;
+
 
   void showLoading(){
     showDialog(context: context, builder: (context){
@@ -84,20 +89,33 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
       widget.userModel.bio = bio;
       widget.userModel.address= address;
 
+      if(_file!= null)
+      {
+        showLoading();
+        String res= await getProfilePicImageUrl(File(_file!.path), widget.userModel.uid!);
+        Navigator.pop(context);
+        if(res!= "Error")
+        {
+          widget.userModel.profilePic = res;
+        }
+      }
+
       showLoading();
       String res =  await SaveUserModel(widget.userModel!);
       if(res =="success")
         {
           Navigator.pop(context);
           showUpdate("successfully create account");
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>Navigation_Bar(userModel: widget.userModel,) ));
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>Navigation_Bar(userModel: widget.userModel,) ));
 
         }
       else{
         print(res);
-        showUpdate(res);
         Navigator.pop(context);
+        showUpdate(res);
+
       }
+
 
     }
     else
@@ -147,12 +165,25 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                       width: 60,
                       height: 60,
                       child: InkWell(
-                        onTap: (){
+                        onTap: ()async{
                           // take profile pic
+                          XFile? file  = await ImagePicker().pickImage(source: ImageSource.gallery);
+                          if(file!= null)
+                          {
+                            setState(() {
+                              _file= file;
+                            });
+                          }
+
 
                         },
                         child: CircleAvatar(
-                          child: Icon(Icons.person_outline_rounded,size: 30,),
+                          backgroundImage:_file== null ?widget.userModel.profilePic != null
+                              ? NetworkImage(widget.userModel.profilePic!)
+                              : null: FileImage(File(_file!.path)),
+                          child:_file== null  ?widget.userModel.profilePic == null
+                              ? Icon(Icons.person_outline_rounded)
+                              : null : null,
                         ),
                       ),
                     ),

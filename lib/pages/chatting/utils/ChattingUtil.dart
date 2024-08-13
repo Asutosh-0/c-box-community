@@ -11,7 +11,8 @@ class MessageUtil{
         .collection("Messages").doc(message.messageid).set(message.toMap());
 
     await FirebaseFirestore.instance.collection("ChatRoom").doc(chatroom.chatroomid).update({
-      "lastMessage":message.text
+      "lastMessage":message.text,
+      "lastTime":message.time
     });
 
   }

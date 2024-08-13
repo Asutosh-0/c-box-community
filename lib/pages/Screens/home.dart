@@ -1,12 +1,14 @@
 import 'package:c_box/models/PostModel.dart';
 import 'package:c_box/models/user_model.dart';
 import 'package:c_box/pages/Screens/profile.dart';
+import 'package:c_box/pages/chatting/ChatShowScreen.dart';
 import 'package:c_box/pages/commentPage.dart';
 import 'package:c_box/services/postServices.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
+import 'package:video_player/video_player.dart';
 
 import '../chatting/model/ChatRoomModel.dart';
 
@@ -130,16 +132,34 @@ class _Home extends State<Home> {
         ),
         actions: [
 
-          IconButton(onPressed: (){}, icon: Icon(Icons.notification_add)),
-
           const SizedBox(width: 10),
 
-          IconButton(onPressed: (){}, icon: Icon(Icons.message_outlined)),
+          IconButton(onPressed: (){
+            Navigator.push(context, MaterialPageRoute(builder: (context)=> ChatShowScreen(userModel: widget.userModel) ));
+          }, icon: Icon(Icons.message_outlined)),
 
 
           SizedBox(width: 10),
           IconButton(onPressed: (){}, icon: Icon(Icons.camera_alt)),
-          SizedBox(width: 10,)
+          SizedBox(width: 10,),
+
+          InkWell(
+            onTap: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context)=> Profile(userModel: widget.userModel) ));
+            },
+            child: CircleAvatar(
+              radius: 18,
+              backgroundColor: Colors.lightBlueAccent.withOpacity(0.4),
+              backgroundImage: widget.userModel.profilePic != null
+                  ? NetworkImage(widget.userModel.profilePic!)
+                  : AssetImage('assets/c_box.png'),
+              child: widget.userModel.profilePic == null
+                  ? Icon(Icons.person)
+                  : null,
+            ),
+          ),
+
+          SizedBox(width: 20,)
         ],
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(95),
@@ -178,11 +198,12 @@ class _Home extends State<Home> {
         ),
       ),
       body: Center(
+
         child: SizedBox(
           width: 600,
           child : StreamBuilder(
 
-              stream: FirebaseFirestore.instance.collection("PostDetail").snapshots(),
+              stream: FirebaseFirestore.instance.collection("PostDetail").orderBy("postUrl").snapshots(),
               builder: (context, snapshot) {
 
                 if(snapshot.connectionState == ConnectionState.active)
@@ -209,9 +230,15 @@ class _Home extends State<Home> {
                               child: Column(
                                 children: [
 
+
                                   TopBar(postModel: postModel,selfUser: widget.userModel,),
 
+                                  if(postModel.isVideo==true )
+                                    PostVideo(showVideo: postModel),
+
+                                  if(postModel.isVideo == false)
                                   PostBar(postModel: postModel),
+
                                   const SizedBox(height: 15),
 
                                   // Bottom
@@ -334,6 +361,65 @@ class PostBar extends StatelessWidget {
         fit: BoxFit.cover,
       ),
     );
+  }
+}
+class PostVideo extends StatefulWidget {
+  final PostModel showVideo;
+  const PostVideo({super.key, required this.showVideo});
+
+  @override
+  State<PostVideo> createState() => _PostVideoState();
+}
+
+class _PostVideoState extends State<PostVideo> {
+  VideoPlayerController? _controller;
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.showVideo.postUrl != null) {
+      _controller = VideoPlayerController.network(widget.showVideo.postUrl!)
+        ..initialize().then((_) {
+          setState(() {
+            _controller?.play();
+          });
+        });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return  _controller != null && _controller!.value.isInitialized ?
+        Container(
+          height: MediaQuery.of(context).size.height*0.6,
+        child: Center(
+          child: InkWell(
+            onTap: () {
+              setState(() {
+                _controller!.value.isPlaying
+                    ? _controller!.pause()
+                    : _controller!.play();
+              });
+            },
+            child: AspectRatio(
+              aspectRatio: _controller!.value.aspectRatio,
+              child: VideoPlayer(_controller!),
+            ),
+          ),
+        ),
+      )
+          : Container(
+      height: MediaQuery.of(context).size.height*0.5,
+            child: Center(
+                    child: CircularProgressIndicator(),),
+          );
+
   }
 }
 

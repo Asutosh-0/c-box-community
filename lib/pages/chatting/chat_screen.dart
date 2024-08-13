@@ -97,7 +97,12 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
               leading: CircleAvatar(
                 radius: 15,
-              child: Icon(Icons.person,size: 20,weight: 1),
+                backgroundImage:widget.targetUser!.profilePic != null
+                    ? NetworkImage(widget.targetUser!.profilePic!)
+                    : null,
+                child: widget.targetUser.profilePic == null
+                    ? Icon(Icons.person,size: 17,)
+                    : null,
             ),
         ),
       ),

@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:c_box/models/user_model.dart';
-import 'package:c_box/pages/Screens/add_blog_page.dart';
 import 'package:c_box/services/postServices.dart';
 import 'package:c_box/utils.dart';
 import 'package:flutter/material.dart';
@@ -193,9 +192,7 @@ class _Post extends State<Post> {
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                               ),
-                              onPressed: () {
-                                AddBlogPage();
-                              },
+                              onPressed: () {},
                               child: Center(child: Text("blog",
                                 style: TextStyle(fontSize: 15,
                                     fontWeight: FontWeight.w300,
