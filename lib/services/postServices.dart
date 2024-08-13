@@ -87,3 +87,10 @@ void LikePost(String id)  async
 
 
 }
+
+Future<UserModel> getUserById(String uid) async
+{
+  DocumentSnapshot snapshot= await FirebaseFirestore.instance.collection("UserDetail").doc(uid).get();
+  UserModel userModel= UserModel.fromMap(snapshot.data() as Map<String,dynamic>);
+  return userModel;
+}

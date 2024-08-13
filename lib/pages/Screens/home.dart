@@ -1,10 +1,14 @@
 import 'package:c_box/models/PostModel.dart';
 import 'package:c_box/models/user_model.dart';
+import 'package:c_box/pages/Screens/profile.dart';
 import 'package:c_box/pages/commentPage.dart';
 import 'package:c_box/services/postServices.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
+
+import '../chatting/model/ChatRoomModel.dart';
 
 class Home extends StatefulWidget {
   final UserModel userModel;
@@ -187,6 +191,7 @@ class _Home extends State<Home> {
                   {
                     var qsnap = snapshot.data as QuerySnapshot;
                     return ListView.builder(
+
                         itemCount: qsnap.docs.length,
                         itemBuilder:
                             (context, index) {
@@ -204,7 +209,7 @@ class _Home extends State<Home> {
                               child: Column(
                                 children: [
 
-                                  TopBar(postModel: postModel),
+                                  TopBar(postModel: postModel,selfUser: widget.userModel,),
 
                                   PostBar(postModel: postModel),
                                   const SizedBox(height: 15),
@@ -217,6 +222,7 @@ class _Home extends State<Home> {
                             ),
                           );
                         }
+
 
                     );
 
@@ -259,26 +265,52 @@ class _Home extends State<Home> {
 }
 
 
-class TopBar extends StatelessWidget {
+class TopBar extends StatefulWidget {
+  final UserModel selfUser;
   final PostModel postModel;
-  const TopBar({super.key, required this.postModel});
+  const TopBar({super.key, required this.postModel, required this.selfUser});
+
+  @override
+  State<TopBar> createState() => _TopBarState();
+}
+
+class _TopBarState extends State<TopBar> {
+  UserModel? model;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getModel();
+  }
+  getModel()async{
+    model = await getUserById(widget.postModel.uid!);
+  }
 
   @override
   Widget build(BuildContext context) {
     return  ListTile(
-      leading: CircleAvatar(
-        radius: 18,
-        backgroundImage: postModel
-            .profilePic != null
-            ? NetworkImage(
-            postModel.profilePic!)
-            : null, // profile image url
-        child: postModel.profilePic ==
-            null
-            ? Icon(Icons.person_outline)
-            : null,
+      leading: InkWell(
+        onTap: (){
+          if(model != null) {
+            Navigator.push(context, MaterialPageRoute(
+                builder: (context) => Profile(userModel: model!,selfUser: widget.selfUser,)));
+          }
+        },
+        child: CircleAvatar(
+          radius: 18,
+          backgroundImage: widget.postModel
+              .profilePic != null
+              ? NetworkImage(
+              widget.postModel.profilePic!)
+              : null, // profile image url
+          child: widget.postModel.profilePic ==
+              null
+              ? Icon(Icons.person_outline)
+              : null,
+        ),
       ),
-      title: Text(postModel.userName!),
+      title: Text(widget.postModel.userName!),
       // subtitle: Text(postModel.),
       trailing: const Icon(Icons.menu),
     ) ;
