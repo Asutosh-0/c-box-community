@@ -24,7 +24,7 @@ import '../pages/Screens/home.dart';
        Home(userModel: widget.userModel,),
       Search(userModel: widget.userModel,),
       Post(userModel:  widget.userModel,),
-       ReelsScreen(),
+       ReelsScreen(userModel: widget.userModel,),
        BlogShowScreen(),
     ];
 

@@ -6,6 +6,7 @@ import 'package:c_box/navigation_bar/navigation_bar.dart';
 import 'package:c_box/pages/AuthPage/Login.dart';
 import 'package:c_box/pages/AuthPage/OtpVerify.dart';
 import 'package:c_box/pages/AuthPage/signup.dart';
+import 'package:c_box/pages/Screens/ReelsScreen.dart';
 import 'package:c_box/pages/chatting/utils/helper.dart';
 import 'package:c_box/pages/user_detail_screen.dart';
 import 'package:c_box/services/Authentication.dart';
@@ -20,6 +21,11 @@ void main() async{
     options: DefaultFirebaseOptions.currentPlatform,
 );
 
+
+  // return runApp(MaterialApp(
+  //   debugShowCheckedModeBanner: false,
+  //   home: ReelsScreen(),
+  // ));
 
   User? user= FirebaseAuth.instance.currentUser;
   if(user!= null)
