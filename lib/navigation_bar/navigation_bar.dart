@@ -1,14 +1,16 @@
 import 'package:c_box/models/user_model.dart';
-import 'package:c_box/pages/Screens/BlogShowScreen.dart';
+import 'package:c_box/pages/Screens/TweetShowScreen.dart';
 import 'package:c_box/pages/Screens/ReelsScreen.dart';
 import 'package:c_box/pages/Screens/post.dart';
 import 'package:c_box/pages/Screens/profile.dart';
 import 'package:c_box/pages/Screens/search.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../pages/Screens/home.dart';
 
   // ignore: camel_case_types
   class Navigation_Bar extends StatefulWidget {
+
     final UserModel userModel ;
     const Navigation_Bar({super.key, required this.userModel});
 
@@ -21,12 +23,12 @@ import '../pages/Screens/home.dart';
      List<Widget> get _screens => [
       
        Home(userModel: widget.userModel,),
-      Search(),
+      Search(userModel: widget.userModel,),
       Post(userModel:  widget.userModel,),
-       ReelsScreen(),
-       BlogShowScreen(),
-       Profile(userModel:  widget.userModel,),
+       ReelsScreen(userModel: widget.userModel,),
+       TweetShowScreen(),
     ];
+
 
     int selectedIndex = 0;
 
@@ -55,13 +57,11 @@ import '../pages/Screens/home.dart';
                   BottomNavigationBarItem(
                       icon: Icon(Icons.search), label: 'Search'),
                   BottomNavigationBarItem(
-                      icon: Icon(Icons.add), label: 'Add Post'),
+                      icon: Icon(Icons.add_circle,size: 30,), label: 'Add Post'),
                   BottomNavigationBarItem(
                       icon: Icon(Icons.play_arrow_outlined), label: 'Reels'),
                   BottomNavigationBarItem(
-                      icon: Icon(Icons.article), label: 'Articles'),
-                  BottomNavigationBarItem(
-                      icon: Icon(Icons.people), label: 'Profile'),
+                      icon: Icon(FontAwesomeIcons.twitter), label: 'Tweets'),
                 ],
               )
             : null,
@@ -91,7 +91,7 @@ import '../pages/Screens/home.dart';
                     label: Text('Search'),
                   ),
                   NavigationRailDestination(
-                    icon: Icon(Icons.add),
+                    icon: Icon(Icons.add,size: 30,),
                     selectedIcon: Icon(Icons.add_circle),
                     label: Text('Add Post'),
                   ),
@@ -101,14 +101,9 @@ import '../pages/Screens/home.dart';
                     label: Text('Reels'),
                   ),
                   NavigationRailDestination(
-                    icon: Icon(Icons.article_outlined),
-                    selectedIcon: Icon(Icons.article),
-                    label: Text('Reels'),
-                  ),
-                  NavigationRailDestination(
-                    icon: Icon(Icons.people),
-                    selectedIcon: Icon(Icons.people_alt),
-                    label: Text('Profile'),
+                    icon: Icon(FontAwesomeIcons.twitter),
+                    selectedIcon: Icon(FontAwesomeIcons.twitter),
+                    label: Text('Tweets'),
                   ),
                 ],
 
