@@ -88,6 +88,8 @@ class _ReelsScreenState extends State<ReelsScreen> {
         actions: [
           IconButton(onPressed: (){
 
+            print("date ${DateTime.now().toString()}");
+
           }, icon: Icon(Icons.camera_alt_outlined,color: Colors.white,size: 25,)),
           SizedBox(width: 20,)
         ],
