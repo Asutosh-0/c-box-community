@@ -40,6 +40,4 @@ void showUpdate(String message,BuildContext context)
         ,));
 
 }
-
-
  

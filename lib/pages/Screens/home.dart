@@ -1,5 +1,6 @@
 import 'package:c_box/models/PostModel.dart';
 import 'package:c_box/models/user_model.dart';
+import 'package:c_box/pages/Screens/camera.dart';
 import 'package:c_box/pages/Screens/profile.dart';
 import 'package:c_box/pages/chatting/ChatShowScreen.dart';
 import 'package:c_box/pages/commentPage.dart';
@@ -8,7 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import 'package:video_player/video_player.dart';
+import "package:video_player/video_player.dart";
 
 import '../chatting/model/ChatRoomModel.dart';
 
@@ -140,31 +141,24 @@ class _Home extends State<Home> {
 
 
           SizedBox(width: 10),
-          IconButton(onPressed: (){}, icon: Icon(Icons.camera_alt)),
+          IconButton(onPressed: (){
+            Navigator.push(context, MaterialPageRoute(builder: (context) => Camera()));
+          }, icon: Icon(Icons.camera_alt)),
           SizedBox(width: 10,),
 
           InkWell(
             onTap: (){
               Navigator.push(context, MaterialPageRoute(builder: (context)=> Profile(userModel: widget.userModel) ));
             },
-            child: Container(
-              width: 35,
-              height: 35,
-              padding: EdgeInsets.all(1),
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(17.5)),
-
-              child: CircleAvatar(
-                radius: 18,
-                backgroundColor: Colors.lightBlueAccent.withOpacity(0.4),
-                backgroundImage: widget.userModel.profilePic != null
-                    ? NetworkImage(widget.userModel.profilePic!)
-                    : AssetImage('assets/c_box.png'),
-                child: widget.userModel.profilePic == null
-                    ? Icon(Icons.person)
-                    : null,
-              ),
+            child: CircleAvatar(
+              radius: 18,
+              backgroundColor: Colors.lightBlueAccent.withOpacity(0.4),
+              backgroundImage: widget.userModel.profilePic != null
+                  ? NetworkImage(widget.userModel.profilePic!)
+                  : AssetImage('assets/c_box.png'),
+              child: widget.userModel.profilePic == null
+                  ? Icon(Icons.person)
+                  : null,
             ),
           ),
 
@@ -172,106 +166,37 @@ class _Home extends State<Home> {
         ],
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(95),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Container(
-                child: Stack(
-                  children: [
-                  Container(
+          child: Container(
+            height: 100,
+            color: Colors.purple[30],
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal, // Scroll horizontally
+              itemCount: searchUsers.length,
+              itemBuilder: (context, index) {
+                Map<String, dynamic> user = searchUsers[index];
+                return Container(
                   width: 70,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        InkWell(
-                          onTap: (){
-
-                          },
-                          child: Container(
-                            width: 55,
-                            height: 55,
-                            padding: EdgeInsets.all(1),
-                            decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(27.5)),
-                            child: CircleAvatar(
-                              backgroundColor: Colors.lightBlueAccent.withOpacity(0.4),
-                              backgroundImage: widget.userModel.profilePic != null
-                                  ? NetworkImage(widget.userModel.profilePic!)
-                                  : null,
-                              child: widget.userModel.profilePic == null
-                                  ? Icon(Icons.person)
-                                  : null,
-
-                            )
-                          ),
+                        CircleAvatar(
+                          radius: 25,
+                          backgroundImage: NetworkImage(user['profileImageUrl']),
                         ),
                         const SizedBox(height: 4),
-                        Center(
-                          child: Text(
-                            "your story",
-                            maxLines: 1,
-                            style: const TextStyle(color: Colors.black, fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
+                        Text(
+                          user["username"],
+                          maxLines: 1,
+                          style: const TextStyle(color: Colors.black, fontSize: 10, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
                   ),
-                ),
-                    Positioned(
-                      top: 44,
-                      left: 44,
-                      child: Icon(Icons.add_circle),
-                    )
-                  ],
-                ),
-              ),
-
-                 Expanded(
-                   child: SingleChildScrollView(
-                     scrollDirection: Axis.vertical,
-                     child: Container(
-                       width: MediaQuery.of(context).size.width,
-                   
-                      height: 100,
-                      color: Colors.purple[30],
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal, // Scroll horizontally
-                        itemCount: searchUsers.length,
-                        itemBuilder: (context, index) {
-                          Map<String, dynamic> user = searchUsers[index];
-                          return Container(
-                            width: 70,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  CircleAvatar(
-                                    radius: 25,
-                                    backgroundImage: NetworkImage(user['profileImageUrl']),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    user["username"],
-                                    maxLines: 1,
-                                    style: const TextStyle(color: Colors.black, fontSize: 10, fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                                     ),
-                   ),
-                 ),
-
-            ],
+                );
+              },
+            ),
           ),
         ),
       ),

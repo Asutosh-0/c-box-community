@@ -40,15 +40,18 @@ dependencies:
   firebase_core: ^3.1.1
   firebase_auth: ^5.1.2
   font_awesome_flutter: ^10.7.0
-  email_auth: 1.1.0
+  # email_auth: 1.1.0
   firebase_storage: ^12.1.1
   cloud_firestore: ^5.1.0
   image_picker: ^1.1.2
   uuid: ^4.4.2
+  mailer: ^6.1.2
   video_player: ^2.9.1
   carousel_slider: ^5.0.0
   timeago: ^3.7.0
   any_link_preview: ^3.0.2
+  deepar_flutter: ^0.0.5
+  # image_gallery_saver: ^2.0.3
 
 
 dev_dependencies:
@@ -84,6 +87,8 @@ flutter:
     - assets/vectors/ionlogo_apple_x2.svg
     - assets/vectors/logosfacebook_x2.svg
     - assets/vectors/line_6_stroke_x2.svg
+    - assets/filters/
+    - assets/previews/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

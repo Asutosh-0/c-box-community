@@ -1,11 +1,10 @@
 import 'package:c_box/models/user_model.dart';
-import 'package:c_box/pages/Screens/TweetShowScreen.dart';
+import 'package:c_box/pages/Screens/BlogShowScreen.dart';
 import 'package:c_box/pages/Screens/ReelsScreen.dart';
 import 'package:c_box/pages/Screens/post.dart';
 import 'package:c_box/pages/Screens/profile.dart';
 import 'package:c_box/pages/Screens/search.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../pages/Screens/home.dart';
 
   // ignore: camel_case_types
@@ -25,10 +24,9 @@ import '../pages/Screens/home.dart';
        Home(userModel: widget.userModel,),
       Search(userModel: widget.userModel,),
       Post(userModel:  widget.userModel,),
-       ReelsScreen(userModel: widget.userModel,),
-       TweetShowScreen(),
+       ReelsScreen(),
+       BlogShowScreen(),
     ];
-
 
     int selectedIndex = 0;
 
@@ -61,7 +59,7 @@ import '../pages/Screens/home.dart';
                   BottomNavigationBarItem(
                       icon: Icon(Icons.play_arrow_outlined), label: 'Reels'),
                   BottomNavigationBarItem(
-                      icon: Icon(FontAwesomeIcons.twitter), label: 'Tweets'),
+                      icon: Icon(Icons.article), label: 'Articles'),
                 ],
               )
             : null,
@@ -101,9 +99,9 @@ import '../pages/Screens/home.dart';
                     label: Text('Reels'),
                   ),
                   NavigationRailDestination(
-                    icon: Icon(FontAwesomeIcons.twitter),
-                    selectedIcon: Icon(FontAwesomeIcons.twitter),
-                    label: Text('Tweets'),
+                    icon: Icon(Icons.article_outlined),
+                    selectedIcon: Icon(Icons.article),
+                    label: Text('Articles'),
                   ),
                 ],
 

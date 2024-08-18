@@ -3,7 +3,6 @@ import 'package:c_box/models/user_model.dart';
 import 'package:c_box/navigation_bar/navigation_bar.dart';
 import 'package:c_box/pages/Screens/profile.dart';
 import 'package:c_box/pages/VideoShowScreen.dart';
-import 'package:c_box/pages/twitter%20features/widgets/add_tweet_Screen.dart';
 import 'package:c_box/services/postServices.dart';
 import 'package:c_box/utils.dart';
 import 'package:flutter/material.dart';
@@ -237,11 +236,8 @@ class _Post extends State<Post> {
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                               ),
-                              onPressed: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context)=>  AddTweetScreen(userModel: widget.userModel,)));
-
-                              },
-                              child: Center(child: Text("tweet",
+                              onPressed: () {},
+                              child: Center(child: Text("blog",
                                 style: TextStyle(fontSize: 15,
                                     fontWeight: FontWeight.w300,
                                     color: Colors.black),)))),
