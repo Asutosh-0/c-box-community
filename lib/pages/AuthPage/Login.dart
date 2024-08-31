@@ -77,7 +77,7 @@ class _LoginState extends State<Login> {
           Navigator.pop(context);
           if(userModel != null)
             {
-              Navigator.push(context, MaterialPageRoute(builder: (context)=> Navigation_Bar(userModel:  userModel,)));
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> Navigation_Bar(userModel:  userModel,)));
             }
           else
             {

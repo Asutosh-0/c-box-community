@@ -26,7 +26,7 @@ import '../pages/Screens/home.dart';
       Search(userModel: widget.userModel,),
       Post(userModel:  widget.userModel,),
        ReelsScreen(userModel: widget.userModel,),
-       TweetShowScreen(),
+       TweetShowScreen(userModel: widget.userModel,),
     ];
 
 

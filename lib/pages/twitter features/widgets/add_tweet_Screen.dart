@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:c_box/models/user_model.dart';
+import 'package:c_box/pages/twitter%20features/sevices/tweet_controller.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -39,7 +40,15 @@ class _AddTweetScreenState extends State<AddTweetScreen> {
           ElevatedButton(
               onPressed: () async{
          // tweet
-
+                TweetController tweet= TweetController();
+                tweet.shareTweet(images: images, text: tweetTextController.text.trim(), userModel: widget.userModel, context: context);
+                if(tweet.clear == true)
+                  {
+                    setState(() {
+                      tweetTextController.clear();
+                      images = [];
+                    });
+                  }
 
               }, child: Text("tweet")),
           SizedBox(width: 10,),

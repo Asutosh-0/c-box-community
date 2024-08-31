@@ -5,8 +5,10 @@ import 'package:c_box/pages/chatting/ChatShowScreen.dart';
 import 'package:c_box/pages/commentPage.dart';
 import 'package:c_box/services/postServices.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:like_button/like_button.dart';
 import 'package:uuid/uuid.dart';
 import 'package:video_player/video_player.dart';
 
@@ -90,6 +92,39 @@ class _Home extends State<Home> {
     },
   ];
 
+  Future<List<PostModel>> fetchPrioritizedPosts() async {
+    final userDoc = await FirebaseFirestore.instance.collection('users').doc(widget.userModel.uid).get();
+    final List<String> following = List<String>.from(userDoc['following'] ?? []);
+
+    // Fetch all posts
+    final querySnapshot = await FirebaseFirestore.instance.collection("PostDetail").get();
+    final posts = querySnapshot.docs.map((doc) => PostModel.fromMap(doc.data() as Map<String, dynamic>)).toList();
+
+    // Sort posts based on algorithm
+    posts.sort((a, b) {
+      int scoreA = 0;
+      int scoreB = 0;
+
+      // Recency (more recent posts get a lower score)
+      // scoreA += DateTime.now().difference(a.timestamp).inMinutes;
+      // scoreB += DateTime.now().difference(b.timestamp).inMinutes;
+
+      // Engagement (more likes and comments get a lower score)
+      scoreA -= (a.likes?.length ?? 0) * 10 + (a.commentCount ?? 0) * 5;
+      scoreB -= (b.likes?.length ?? 0) * 10 + (b.commentCount ?? 0) * 5;
+
+      // Relationship (posts from followed users get a lower score)
+      if (following.contains(a.uid)) scoreA -= 50;
+      if (following.contains(b.uid)) scoreB -= 50;
+
+      return scoreA.compareTo(scoreB);
+    });
+
+    // Shuffle some posts to introduce randomness
+    posts.shuffle(Random());
+
+    return posts;
+  }
   @override
   Widget build(BuildContext context) {
     // var Size = MediaQuery.of(context).size;
@@ -170,197 +205,217 @@ class _Home extends State<Home> {
 
           SizedBox(width: 20,)
         ],
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(95),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Container(
-                child: Stack(
-                  children: [
-                  Container(
-                  width: 70,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        InkWell(
-                          onTap: (){
-
-                          },
-                          child: Container(
-                            width: 55,
-                            height: 55,
-                            padding: EdgeInsets.all(1),
-                            decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(27.5)),
-                            child: CircleAvatar(
-                              backgroundColor: Colors.lightBlueAccent.withOpacity(0.4),
-                              backgroundImage: widget.userModel.profilePic != null
-                                  ? NetworkImage(widget.userModel.profilePic!)
-                                  : null,
-                              child: widget.userModel.profilePic == null
-                                  ? Icon(Icons.person)
-                                  : null,
-
-                            )
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Center(
-                          child: Text(
-                            "your story",
-                            maxLines: 1,
-                            style: const TextStyle(color: Colors.black, fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                    Positioned(
-                      top: 44,
-                      left: 44,
-                      child: Icon(Icons.add_circle),
-                    )
-                  ],
-                ),
-              ),
-
-                 Expanded(
-                   child: SingleChildScrollView(
-                     scrollDirection: Axis.vertical,
-                     child: Container(
-                       width: MediaQuery.of(context).size.width,
-                   
-                      height: 100,
-                      color: Colors.purple[30],
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal, // Scroll horizontally
-                        itemCount: searchUsers.length,
-                        itemBuilder: (context, index) {
-                          Map<String, dynamic> user = searchUsers[index];
-                          return Container(
-                            width: 70,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  CircleAvatar(
-                                    radius: 25,
-                                    backgroundImage: NetworkImage(user['profileImageUrl']),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    user["username"],
-                                    maxLines: 1,
-                                    style: const TextStyle(color: Colors.black, fontSize: 10, fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                                     ),
-                   ),
-                 ),
-
-            ],
-          ),
-        ),
+        // bottom:
       ),
       body: Center(
 
         child: SizedBox(
           width: 600,
-          child : StreamBuilder(
+          child :
 
-              stream: FirebaseFirestore.instance.collection("PostDetail").orderBy("postUrl").snapshots(),
-              builder: (context, snapshot) {
-
-                if(snapshot.connectionState == ConnectionState.active)
-                {
-                  if(snapshot.hasData)
-                  {
-                    var qsnap = snapshot.data as QuerySnapshot;
-                    return ListView.builder(
-
-                        itemCount: qsnap.docs.length,
-                        itemBuilder:
-                            (context, index) {
-                          DocumentSnapshot dSnap = qsnap.docs[index] as DocumentSnapshot;
-                          PostModel postModel = PostModel.fromMap(
-                              dSnap.data() as Map<String, dynamic>);
-
-                          return Padding(
-                            padding: const EdgeInsets.all(8.6),
-                            child: SizedBox(
-                              width: MediaQuery
-                                  .of(context)
-                                  .size
-                                  .width,
-                              child: Column(
-                                children: [
-
-
-                                  TopBar(postModel: postModel,selfUser: widget.userModel,),
-
-                                  if(postModel.isVideo==true )
-                                    PostVideo(showVideo: postModel),
-
-                                  if(postModel.isVideo == false)
-                                  PostBar(postModel: postModel),
-
-                                  const SizedBox(height: 15),
-
-                                  // Bottom
-                                  ButtomBar(postModel:postModel,userModel: widget.userModel!)
-
-                                ],
+          SingleChildScrollView(
+            child: Container(
+              height: MediaQuery.of(context).size.height,
+              child: Column(
+                children: [
+                  PreferredSize(
+                    preferredSize: Size.fromHeight(95),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Container(
+                          child: Stack(
+                            children: [
+                              Container(
+                                width: 70,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      InkWell(
+                                        onTap: (){
+            
+                                        },
+                                        child: Container(
+                                            width: 55,
+                                            height: 55,
+                                            padding: EdgeInsets.all(1),
+                                            decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius: BorderRadius.circular(27.5)),
+                                            child: CircleAvatar(
+                                              backgroundColor: Colors.lightBlueAccent.withOpacity(0.4),
+                                              backgroundImage: widget.userModel.profilePic != null
+                                                  ? NetworkImage(widget.userModel.profilePic!)
+                                                  : null,
+                                              child: widget.userModel.profilePic == null
+                                                  ? Icon(Icons.person)
+                                                  : null,
+            
+                                            )
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Center(
+                                        child: Text(
+                                          "your story",
+                                          maxLines: 1,
+                                          style: const TextStyle(color: Colors.black, fontSize: 10, fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                top: 44,
+                                left: 44,
+                                child: Icon(Icons.add_circle),
+                              )
+                            ],
+                          ),
+                        ),
+            
+                        Expanded(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.vertical,
+                            child: Container(
+                              width: MediaQuery.of(context).size.width,
+            
+                              height: 100,
+                              color: Colors.purple[30],
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal, // Scroll horizontally
+                                itemCount: searchUsers.length,
+                                itemBuilder: (context, index) {
+                                  Map<String, dynamic> user = searchUsers[index];
+                                  return Container(
+                                    width: 70,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 25,
+                                            backgroundImage: NetworkImage(user['profileImageUrl']),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            user["username"],
+                                            maxLines: 1,
+                                            style: const TextStyle(color: Colors.black, fontSize: 10, fontWeight: FontWeight.bold),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
                             ),
-                          );
-                        }
-
-
-                    );
-
-                  }
-                  else if(snapshot.hasError)
-                  {
-                    return Center(
-                      child: Text("Check Internet"),
-                    );
-
-                  }
-                  else{
-                    return Center(
-                      child: Text("Check Internet"),
-                    );
-                  }
-
-                }
-                else
-                {
-                  return Center(
-                    child:SizedBox(
-                      width: 25, // Adjust the width to reduce the size
-                      height: 25, // Adjust the height to reduce the size
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                        strokeWidth: 2.0,
-                      ),
+                          ),
+                        ),
+            
+                      ],
                     ),
-                  );
-                }
-
-              }
+                  ),
+                  Divider(
+                    thickness: 1,
+                  ),
+                  Expanded(
+                    child: StreamBuilder(
+            
+                        stream: FirebaseFirestore.instance.collection("PostDetail").orderBy("postUrl").snapshots(),
+                    // FutureBuilder<List<PostModel>>(
+                    //     future: fetchPrioritizedPosts(),
+                        builder: (context, snapshot) {
+            
+            
+                          if(snapshot.connectionState == ConnectionState.active)
+                          {
+                            if(snapshot.hasData)
+                            {
+                              var qsnap = snapshot.data as QuerySnapshot;
+                              return ListView.builder(
+            
+                                  itemCount: qsnap.docs.length,
+                                  itemBuilder:
+                                      (context, index) {
+                                    DocumentSnapshot dSnap = qsnap.docs[index] as DocumentSnapshot;
+                                    PostModel postModel = PostModel.fromMap(
+                                        dSnap.data() as Map<String, dynamic>);
+            
+                                    return Padding(
+                                      padding: const EdgeInsets.all(8.6),
+                                      child: SizedBox(
+                                        width: MediaQuery
+                                            .of(context)
+                                            .size
+                                            .width,
+                                        child: Column(
+                                          children: [
+            
+            
+                                            TopBar(postModel: postModel,selfUser: widget.userModel,),
+            
+                                            if(postModel.isVideo==true )
+                                              PostVideo(showVideo: postModel),
+            
+                                            if(postModel.isVideo == false)
+                                            PostBar(postModel: postModel),
+            
+                                            const SizedBox(height: 15),
+            
+                                            // Bottom
+                                            ButtomBar(postModel:postModel,userModel: widget.userModel!)
+            
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  }
+            
+            
+                              );
+            
+                            }
+                            else if(snapshot.hasError)
+                            {
+                              return Center(
+                                child: Text("Check Internet"),
+                              );
+            
+                            }
+                            else{
+                              return Center(
+                                child: Text("Check Internet"),
+                              );
+                            }
+            
+                          }
+                          else
+                          {
+                            return Center(
+                              child:SizedBox(
+                                width: 25, // Adjust the width to reduce the size
+                                height: 25, // Adjust the height to reduce the size
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                                  strokeWidth: 2.0,
+                                ),
+                              ),
+                            );
+                          }
+            
+                        }
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
           ),
         ),
@@ -516,39 +571,72 @@ class ButtomBar extends StatelessWidget {
           Container(
             height: 25,
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                IconButton(
-                  icon: Icon(
-                     postModel.likes!.contains(userModel.uid) ? Icons.favorite : Icons.favorite_outline,
-                      color: postModel.likes!.contains(userModel.uid) ? Colors.red: Colors
-                          .black54),
-                  onPressed: () async {
-                    print(
-                        'Favorite clicked at index ');
-                    LikePost(postModel.postId!);
-                  },
+
+                Container(
+                  margin: EdgeInsets.only(top: 6),
+                  child: LikeButton(
+
+                    size: 20,
+                    onTap: (isLike)async{
+                      LikePost(postModel.postId!);
+                      // function
+                      return !isLike;
+                    },
+
+                    likeBuilder: (islike)
+                    {
+                      return islike ? Icon(Icons.favorite,color: Colors.red,):
+                      Icon(Icons.favorite_outline,color: Colors.black,) ;
+                    },
+                    // likeCount: postModel.likes!.length!,
+                    // countPostion: CountPostion.bottom,
+
+                    isLiked:postModel.likes!.contains(userModel.uid) ,
+                    countBuilder: (linkCount,isLike,text){
+                      return Text(text,style: TextStyle(color: Colors.black),);
+
+                    },
+                  ),
+                ),
+                // IconButton(
+                //   icon: Icon(
+                //      postModel.likes!.contains(userModel.uid) ? Icons.favorite : Icons.favorite_outline,
+                //       color: postModel.likes!.contains(userModel.uid) ? Colors.red: Colors
+                //           .black54),
+                //   onPressed: () async {
+                //     print(
+                //         'Favorite clicked at index ');
+                //     LikePost(postModel.postId!);
+                //   },
+                // ),
+                SizedBox(width: 4,),
+                Container(
+                  margin: EdgeInsets.only(bottom: 5),
+                  child: IconButton(
+                    icon: Icon(
+                      size: 20,
+                        Icons.comment_outlined,
+                        color: Colors
+                            .black),
+                    onPressed: () {
+                      print(
+                          'Comment clicked at index ');
+                      Navigator.push(context,
+                        MaterialPageRoute(builder: (
+                                context) =>CommentPage(userModel: userModel, postModel: postModel)),
+                      );
+                    },
+                  ),
                 ),
                 SizedBox(width: 5),
                 IconButton(
                   icon: Icon(
-                      Icons.comment_outlined,
-                      color: Colors
-                          .black54),
-                  onPressed: () {
-                    print(
-                        'Comment clicked at index ');
-                    Navigator.push(context,
-                      MaterialPageRoute(builder: (
-                              context) =>CommentPage(userModel: userModel, postModel: postModel)),
-                    );
-                  },
-                ),
-                SizedBox(width: 5),
-                IconButton(
-                  icon: Icon(
+                    size: 20,
                       Icons.send_outlined,
                       color: Colors
-                          .black54),
+                          .black),
                   onPressed: () {
                     print(
                         'Send clicked at index ');

@@ -47,13 +47,14 @@ class _CommentPageState extends State<CommentPage> {
   Widget build(BuildContext context) {
     return   Scaffold(
         appBar: AppBar(
-          leadingWidth: 20,
-          title:  ListTile(
-            leading:  CircleAvatar(
-              child: Icon(Icons.person_outline),
-            ),
-            title: Text("${widget.userModel.userName}"),
-          ),
+          leadingWidth: 30,
+          title: Text("comments",style: TextStyle(fontSize: 18,color: Colors.black87),),
+          // title:  ListTile(
+          //   leading:  CircleAvatar(
+          //     child: Icon(Icons.person_outline),
+          //   ),
+          //   title: Text("${widget.userModel.userName}"),
+          // ),
         ),
         body:Container(
           width: MediaQuery.of(context).size.width,
@@ -106,12 +107,26 @@ class _CommentPageState extends State<CommentPage> {
                 child: Row(
                   children: [
                     Expanded(
-                      child: TextField(
-                        controller: controller,
-                        decoration: InputDecoration(
-                          hintText: "Comment something...",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30.0),
+                      child: Container(
+                        margin: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                            border:Border.all(
+                                width: 1,
+                                color: Colors.black87
+                            ),
+                            borderRadius: BorderRadius.circular(5)
+                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        child: SizedBox(
+                          height: 40,
+                          child: TextField(
+                            controller: controller,
+                            decoration: InputDecoration(
+                                hintText: "replay....",
+                                border: OutlineInputBorder(
+                                    borderSide: BorderSide.none
+                                )
+                            ),
                           ),
                         ),
                       ),

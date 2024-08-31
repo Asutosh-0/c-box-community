@@ -133,10 +133,10 @@ packages:
     dependency: "direct main"
     description:
       name: email_auth
-      sha256: d45697c3f38007e3a229a773d7cf10a4861c93f45f1c9663f70438e939fad270
+      sha256: "980674f7bc5be3bb6cf46f684349c00192210cc1246fa01c5ea3fd68d390ca23"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.0"
+    version: "2.0.0"
   fake_async:
     dependency: transitive
     description:
@@ -448,6 +448,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.1"
+  like_button:
+    dependency: "direct main"
+    description:
+      name: like_button
+      sha256: "08e6a45b78888412df5d351786c550205ad3a677e72a0820d5bbc0b063c8a463"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.5"
   lints:
     dependency: transitive
     description:
