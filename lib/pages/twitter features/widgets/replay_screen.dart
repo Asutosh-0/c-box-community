@@ -36,8 +36,8 @@ class _ReplayScreenState extends State<ReplayScreen> {
           shadowColor: Colors.black,
         title: Text("tweet"),
       ),
-      body: SingleChildScrollView(
-        child: Container(
+      body:
+        Container(
           height: MediaQuery.of(context).size.height,
           child: Column(
             children: [
@@ -122,10 +122,11 @@ class _ReplayScreenState extends State<ReplayScreen> {
                 ],
               ),
 
+              SizedBox(height: 10,)
 
             ],
           ),
-        ),
+
       ),
 
     );

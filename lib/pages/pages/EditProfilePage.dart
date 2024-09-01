@@ -5,7 +5,7 @@ import 'package:c_box/services/Authentication.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../utils.dart';
+import '../../utils.dart';
 
 class Editprofile extends StatefulWidget {
   final UserModel userModel;

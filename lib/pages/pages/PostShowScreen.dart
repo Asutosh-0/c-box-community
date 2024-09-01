@@ -2,7 +2,7 @@ import 'package:c_box/models/PostModel.dart';
 import 'package:c_box/models/user_model.dart';
 import 'package:flutter/material.dart';
 
-import 'Screens/home.dart';
+import '../Screens/home.dart';
 
 class Postshowscreen extends StatelessWidget {
   final PostModel postModel;

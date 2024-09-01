@@ -8,7 +8,7 @@ import 'package:c_box/pages/AuthPage/OtpVerify.dart';
 import 'package:c_box/pages/AuthPage/signup.dart';
 import 'package:c_box/pages/Screens/ReelsScreen.dart';
 import 'package:c_box/pages/chatting/utils/helper.dart';
-import 'package:c_box/pages/user_detail_screen.dart';
+import 'package:c_box/pages/pages/user_detail_screen.dart';
 import 'package:c_box/services/Authentication.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';

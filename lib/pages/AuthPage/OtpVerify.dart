@@ -1,4 +1,4 @@
-import 'package:c_box/pages/user_detail_screen.dart';
+import 'package:c_box/pages/pages/user_detail_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 

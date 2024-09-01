@@ -1,13 +1,21 @@
+import 'dart:io';
+
 import 'package:c_box/models/PostModel.dart';
 import 'package:c_box/models/user_model.dart';
 import 'package:c_box/pages/Screens/profile.dart';
 import 'package:c_box/pages/chatting/ChatShowScreen.dart';
-import 'package:c_box/pages/commentPage.dart';
+import 'package:c_box/pages/pages/commentPage.dart';
+import 'package:c_box/pages/story%20features/model/storyModel.dart';
+import 'package:c_box/pages/story%20features/services/story_controller.dart';
+import 'package:c_box/pages/story%20features/widget/select_status_screen.dart';
+import 'package:c_box/pages/story%20features/widget/status_screen.dart';
 import 'package:c_box/services/postServices.dart';
+import 'package:c_box/utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:like_button/like_button.dart';
 import 'package:uuid/uuid.dart';
 import 'package:video_player/video_player.dart';
@@ -236,7 +244,14 @@ class _Home extends State<Home> {
                                     crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
                                       InkWell(
-                                        onTap: (){
+                                        onTap: () async{
+                                          // select the status
+                                          XFile? _file = await ImagePicker().pickImage(source: ImageSource.gallery);
+                                          if(_file!= null)
+                                            {
+                                              Navigator.push(context,
+                                                  MaterialPageRoute(builder: (context)=>SelectStatusScreen(file: File(_file.path,),userModel: widget.userModel,) ));
+                                            }
             
                                         },
                                         child: Container(
@@ -287,34 +302,89 @@ class _Home extends State<Home> {
             
                               height: 100,
                               color: Colors.purple[30],
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal, // Scroll horizontally
-                                itemCount: searchUsers.length,
-                                itemBuilder: (context, index) {
-                                  Map<String, dynamic> user = searchUsers[index];
-                                  return Container(
-                                    width: 70,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          CircleAvatar(
-                                            radius: 25,
-                                            backgroundImage: NetworkImage(user['profileImageUrl']),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            user["username"],
-                                            maxLines: 1,
-                                            style: const TextStyle(color: Colors.black, fontSize: 10, fontWeight: FontWeight.bold),
-                                          ),
-                                        ],
+                              child: FutureBuilder<List<Status>>(
+                                future: StatusController().getStatus(
+                                    context: context,
+                                    userModel: widget.userModel
+                                ),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState == ConnectionState.waiting) {
+                                    return Center(
+                                      child: Text(
+                                        "Loading...",
+                                        style: TextStyle(fontSize: 12),
                                       ),
-                                    ),
+                                    );
+                                  }
+
+                                  // Check if the snapshot has data
+                                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                                    return Center(
+                                      child: Text(
+                                        "No status available.",
+                                        style: TextStyle(fontSize: 12),
+                                      ),
+                                    );
+                                  }
+
+                                  // Check for errors
+                                  if (snapshot.hasError) {
+                                    return Center(
+                                      child: Text(
+                                        "Error: ${snapshot.error}",
+                                        style: TextStyle(fontSize: 12),
+                                      ),
+                                    );
+                                  }
+
+                                  return ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: snapshot.data!.length,
+                                    itemBuilder: (context, index) {
+                                      Status status = snapshot.data![index];
+
+                                      return Container(
+                                        width: 70,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              GestureDetector(
+                                                child: CircleAvatar(
+                                                  backgroundColor: Colors.lightBlueAccent.withOpacity(0.4),
+                                                  backgroundImage: status.profilePic != null
+                                                      ? NetworkImage(status.profilePic!)
+                                                      : null,
+                                                  child: status.profilePic == null
+                                                      ? Icon(Icons.person)
+                                                      : null,
+                                                  radius: 25,
+                                                ),
+                                                onTap: (){
+                                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>StatusScreen(status: status) ));
+                                                },
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                status.userName,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
                                   );
                                 },
-                              ),
+                              )
+
                             ),
                           ),
                         ),

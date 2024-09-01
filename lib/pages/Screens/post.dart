@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:c_box/models/user_model.dart';
 import 'package:c_box/navigation_bar/navigation_bar.dart';
 import 'package:c_box/pages/Screens/profile.dart';
-import 'package:c_box/pages/VideoShowScreen.dart';
+import 'package:c_box/pages/pages/VideoShowScreen.dart';
 import 'package:c_box/pages/twitter%20features/widgets/add_tweet_Screen.dart';
 import 'package:c_box/services/postServices.dart';
 import 'package:c_box/utils.dart';

@@ -1,6 +1,6 @@
 import 'package:c_box/models/PostModel.dart';
 import 'package:c_box/models/user_model.dart';
-import 'package:c_box/pages/ReelsPlayer_item.dart';
+import 'package:c_box/pages/pages/ReelsPlayer_item.dart';
 import 'package:c_box/pages/widgets/CircleAnimation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,7 +9,7 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/widgets.dart';
 
 import '../../services/postServices.dart';
-import '../commentPage.dart';
+import '../pages/commentPage.dart';
 
 class ReelsScreen extends StatefulWidget {
   final UserModel userModel;

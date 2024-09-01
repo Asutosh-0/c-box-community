@@ -1,8 +1,8 @@
 import 'package:c_box/main.dart';
 import 'package:c_box/models/PostModel.dart';
 import 'package:c_box/models/user_model.dart';
-import 'package:c_box/pages/EditProfilePage.dart';
-import 'package:c_box/pages/PostShowScreen.dart';
+import 'package:c_box/pages/pages/EditProfilePage.dart';
+import 'package:c_box/pages/pages/PostShowScreen.dart';
 import 'package:c_box/pages/chatting/chat_screen.dart';
 
 import 'package:c_box/services/postServices.dart';
