@@ -1,11 +1,19 @@
+import 'dart:io';
+
 import 'package:c_box/models/user_model.dart';
 import 'package:c_box/pages/chatting/model/ChatRoomModel.dart';
 import 'package:c_box/pages/chatting/model/Message.dart';
 import 'package:c_box/pages/chatting/utils/ChattingUtil.dart';
 import 'package:c_box/pages/chatting/utils/helper.dart';
+import 'package:c_box/utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
+
+import 'UserBottomSeet.dart';
 
 class ChatScreen extends StatefulWidget {
   final UserModel selfUser;
@@ -19,27 +27,58 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   TextEditingController messageC= TextEditingController();
+  File? file;
 
 
+  Future<String> UploadFile(File file,String uid, String id) async {
+    try {
+      String url = "";
+      Reference reference = FirebaseStorage.instance.ref().child("ChattingFile/${uid}/${id}");
+      UploadTask uploadTask = reference.putFile(file);
+      TaskSnapshot snapshot = await uploadTask;
+      url = await snapshot.ref.getDownloadURL();
 
-  void messageSend() async
+      print(url);
+      return url;
+    } catch (er) {
+      return "error";
+    }
+  }
+
+
+  void messageSend(MessageType type,String text) async
   {
-    String message = messageC.text.trim();
-    if(message.isNotEmpty)
-      {
+    try {
+      String message = text;
+      if (message.isNotEmpty) {
         MessageModel messageModel = MessageModel(
-          messageid: Uuid().v1(),
-          sender: widget.selfUser.uid,
-          toId: widget.targetUser.uid,
-          time: DateTime.now().millisecondsSinceEpoch.toString(),
-          text: message,
-          seen: false
+            messageid: Uuid().v1(),
+            sender: widget.selfUser.uid,
+            toId: widget.targetUser.uid,
+            time: DateTime
+                .now()
+                .millisecondsSinceEpoch
+                .toString(),
+            text: message,
+            seen: false,
+            type: type
 
         );
         MessageUtil().SendMessage(messageModel, widget.chatRoomModel);
-        messageC.clear();
       }
+    }
+    catch(er)
+    {
+      showUpdate("${er.toString()}", context);
+
+    }
+    messageC.clear();
+    setState(() {
+      file = null;
+    });
+
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -133,59 +172,174 @@ class _ChatScreenState extends State<ChatScreen> {
                             MessageModel message= MessageModel.fromMap(qsnap.docs[index].data() as Map<String,dynamic>);
 
                             if(message.toId !=  widget.targetUser.uid) {
-                              if (message.seen == false)
+                              if (message.seen == false) {
                                 SeenUserMessage(message, widget.chatRoomModel);
+                                FirebaseFirestore.instance.collection(
+                                    "ChatRoom").doc(
+                                    widget.chatRoomModel.chatroomid).update({
+                                  "newMessage": false
+                                });
+                              }
                             }
+                            bool isMe = message.sender == widget.selfUser.uid;
                             return Row(
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: message.sender == widget.selfUser.uid ? MainAxisAlignment.end : MainAxisAlignment.start ,
                               children: [
                                 Flexible(
 
-                                    child: Column(
+                                    child:
+                                    InkWell(
+                                      onLongPress: (){
+                                        //buttom seet
+
+                                        showModalBottomSheet(context: context,
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.only(
+                                                    topLeft:  Radius.circular(20),
+                                                    topRight: Radius.circular(20)
+                                                )
+                                            ),
+                                            builder: (_) {
+                                              return ListView(
+                                                shrinkWrap: true,
+                                                children: [
+                                                  Container(
+                                                    height: 4,
+                                                    margin: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height*0.015 ,horizontal: MediaQuery.of(context).size.width*0.4),
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.grey,
+                                                        borderRadius: BorderRadius.circular(8)
+
+                                                    ),
+                                                  ),
+                                                  message.type == MessageType.text ?
+                                                  OptionItem(icon: Icon(Icons.copy,color: Colors.blue,size: 26,), text: "Copy Text", onTap: ()async{
+
+                                                   await  Clipboard.setData(ClipboardData(text: message.text!) ).then((value){
+                                                      Navigator.pop(context);
+                                                      print("text copy");
+                                                    });
+                                                  })
+                                                  :
+                                              OptionItem(icon: Icon(Icons.download_rounded,color: Colors.blue,size: 26,), text: "Save Image", onTap: (){}),
+
+
+                                              Divider(
+                                                    color: Colors.black54,
+                                                    thickness: 0.5,
+                                                    endIndent: 10,
+                                                    indent: 10,
+                                                  ),
+                                                if(  message.type == MessageType.text && isMe)
+
+                                                  OptionItem(icon: Icon(Icons.edit,color: Colors.blue,size: 26,), text: "Edit Message", onTap: (){
+                                                    // edit message
+                                                    Navigator.pop(context);
+                                                    showUpdateDialog(message);
+
+                                                  }),
+
+
+                                                  if( isMe)
+                                                  OptionItem(icon: Icon(Icons.delete,color: Colors.red,size: 26,), text: "Delete Message", onTap: (){
+
+                                                    Navigator.pop(context);
+                                                    MessageUtil().DeleteMessage(message, widget.chatRoomModel);
+
+                                                  }),
+
+
+
+                                                ],
+
+                                              );
+                                            });
+
+                                      },
+                                      child:
+
+                                    Column(
                                       mainAxisSize:MainAxisSize.min,
                                       crossAxisAlignment: message.sender == widget.selfUser.uid ? CrossAxisAlignment.end : CrossAxisAlignment.start ,
 
 
                                       children: [
-                                        Card(
-                                          elevation:2,
-                                          margin: EdgeInsets.all(8),
-                                          // color:Colors.blueAccent,
-                                          shape:RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.only(
-                                              topLeft: Radius.circular(7),
-                                              topRight: Radius.circular(7),
-                                              bottomRight: message.sender == widget.selfUser.uid ? Radius.circular(0):Radius.circular(7),
-                                              bottomLeft: message.sender != widget.selfUser.uid ? Radius.circular(0):Radius.circular(7),
+                                        if(message.type == MessageType.image)
+                                          Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment: message.sender == widget.selfUser.uid
+                                                ? MainAxisAlignment.end
+                                                : MainAxisAlignment.start,
+                                            children: [
+                                              Flexible(
+                                                child: AspectRatio(
+                                                  aspectRatio: 9 / 6,
+                                                  child: Container(
+                                                    margin: message.sender == widget.selfUser.uid
+                                                        ? EdgeInsets.only(left: 50, right: 10, top: 10, bottom: 10) // Right align for self
+                                                        : EdgeInsets.only(right: 50, left: 10, top: 10, bottom: 10), // Left align for others
+                                                    decoration: BoxDecoration(
+                                                      borderRadius: BorderRadius.circular(20),
+                                                    ),
+                                                    child: Image.network(
+                                                      message.text!,
+                                                      fit: BoxFit.contain,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+
+
+                                        if(message.type == MessageType.text)
+                                          Card(
+
+                                            elevation:2,
+                                            margin: EdgeInsets.all(8),
+                                            // color:Colors.blueAccent,
+                                            shape:RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(7),
+                                                topRight: Radius.circular(7),
+                                                bottomRight: message.sender == widget.selfUser.uid ? Radius.circular(0):Radius.circular(7),
+                                                bottomLeft: message.sender != widget.selfUser.uid ? Radius.circular(0):Radius.circular(7),
+                                              ),
+                                            ),
+                                            // padding: EdgeInsets.all(4),
+                                            //        decoration:BoxDecoration(
+                                            // borderRadius: BorderRadius.only(
+                                            //   topLeft: Radius.circular(7),
+                                            //   topRight: Radius.circular(7),
+                                            //   bottomRight: message.sender == widget.selfUser.uid ? Radius.circular(0):Radius.circular(7),
+                                            //   bottomLeft: message.sender != widget.selfUser.uid ? Radius.circular(0):Radius.circular(7),
+                                            // ),
+                                            //          border: Border.all(color: Colors.lightBlue),
+                                            //          color:  message.sender == widget.selfUser.uid ? Color.fromARGB(255, 221, 245, 255): Color.fromARGB(255, 221, 245, 255)
+                                            //
+                                            //  ),
+
+                                            child: Padding(
+                                              padding:  EdgeInsets.only(
+                                                top: 6,
+                                                bottom: 6,
+                                                left: message.sender != widget.selfUser.uid ? 15:8,
+                                                right: message.sender == widget.selfUser.uid ?15:8,
+
+                                              ),
+                                              child: message.type == MessageType.text ? Text(
+                                                  message.text.toString()
+                                              ) : AspectRatio(aspectRatio: 5/3,
+                                              child: Container(
+                                                  margin: EdgeInsets.all(10),
+                                                  width: MediaQuery.of(context).size.width,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius: BorderRadius.circular(20),
+                                                  ),
+                                                  child: Image.network(message.text!,fit:BoxFit.contain ,)),),
                                             ),
                                           ),
-                                          // padding: EdgeInsets.all(4),
-                                          //        decoration:BoxDecoration(
-                                          // borderRadius: BorderRadius.only(
-                                          //   topLeft: Radius.circular(7),
-                                          //   topRight: Radius.circular(7),
-                                          //   bottomRight: message.sender == widget.selfUser.uid ? Radius.circular(0):Radius.circular(7),
-                                          //   bottomLeft: message.sender != widget.selfUser.uid ? Radius.circular(0):Radius.circular(7),
-                                          // ),
-                                          //          border: Border.all(color: Colors.lightBlue),
-                                          //          color:  message.sender == widget.selfUser.uid ? Color.fromARGB(255, 221, 245, 255): Color.fromARGB(255, 221, 245, 255)
-                                          //
-                                          //  ),
-
-                                          child: Padding(
-                                            padding:  EdgeInsets.only(
-                                              top: 6,
-                                              bottom: 6,
-                                              left: message.sender != widget.selfUser.uid ? 15:8,
-                                              right: message.sender == widget.selfUser.uid ?15:8,
-
-                                            ),
-                                            child: Text(
-                                                message.text.toString()
-                                            ),
-                                          ),
-                                        ),
                                         Padding(
                                           padding:  EdgeInsets.all(4.0),
 
@@ -213,6 +367,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                         )
                                       ],
                                     ),
+                            )
                                 ),
 
 
@@ -269,7 +424,21 @@ class _ChatScreenState extends State<ChatScreen> {
                             border: OutlineInputBorder(
                               borderSide: BorderSide.none
                             ),
-                            suffixIcon: Icon(Icons.camera_alt)
+                            suffixIcon: InkWell(
+                              onTap: ()async{
+                                XFile? xfile= await ImagePicker().pickImage(source: ImageSource.gallery);
+                                if(xfile!=null)
+                                  {
+                                    setState(() {
+                                      file =  File(xfile.path);
+                                      messageC.text = xfile.name;
+                                    });
+
+                                  }
+
+
+                              },
+                                child: Icon(Icons.camera_alt))
                           ),
                         ),
                       ),
@@ -278,8 +447,29 @@ class _ChatScreenState extends State<ChatScreen> {
                   Padding(
                     padding: const EdgeInsets.all(5.0),
                     child: InkWell(
-                      onTap: (){
-                        messageSend();
+                      onTap: ()async{
+                        if(file != null)
+                          {
+                            showLoading(context);
+                            String id = Uuid().v1();
+                            String url =  await  UploadFile(file!, widget.selfUser!.uid!, id);
+                            if(url != "error")
+                              {
+                                messageSend(MessageType.image,url);
+
+                              }
+                            else
+                              {
+                                showUpdate("something error ", context);
+                              }
+                            Navigator.pop(context);
+
+                          }
+                        else
+                          {
+                            messageSend(MessageType.text!,messageC.text.trim());
+
+                          }
                       },
                       child: CircleAvatar(
                         backgroundColor: Colors.brown.shade400,
@@ -295,5 +485,70 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
       ),
     );
+  }
+
+  void showUpdateDialog(MessageModel message) {
+    String updateMessage =  message.text!;
+
+    showDialog(context: context, builder: (_){
+
+      return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10)
+        ),
+        title: Row(
+          children: [
+            Icon(Icons.message,size: 20,),
+            SizedBox(width: 10,),
+            Text("Update Message",style: TextStyle(fontSize: 15),)
+          ],
+        ),
+        content: TextFormField(
+          maxLines: null,
+          onChanged: (value)=> updateMessage = value,
+          initialValue: updateMessage,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10)
+            )
+          ),
+        ),
+        actions: [
+
+          ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                backgroundColor: Colors.black,
+                elevation: 2
+              ),
+
+              onPressed: (){
+
+                Navigator.pop(context);
+          }, child: Text("Cancel",style: TextStyle(color: Colors.white),)),
+
+          SizedBox(width: 5,),
+          ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  backgroundColor: Colors.black,
+                  elevation: 2
+              ),
+
+              onPressed: (){
+
+                MessageUtil().EditMessage(message,widget.chatRoomModel, updateMessage);
+
+                Navigator.pop(context);
+              }, child: Text("Update",style: TextStyle(color: Colors.white),)),
+        ],
+
+      );
+    });
+
   }
 }

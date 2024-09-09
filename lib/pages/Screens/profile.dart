@@ -4,6 +4,7 @@ import 'package:c_box/models/user_model.dart';
 import 'package:c_box/pages/pages/EditProfilePage.dart';
 import 'package:c_box/pages/pages/PostShowScreen.dart';
 import 'package:c_box/pages/chatting/chat_screen.dart';
+import 'package:c_box/pages/pages/show_follower_screen.dart';
 
 import 'package:c_box/services/postServices.dart';
 import 'package:c_box/utils.dart';
@@ -104,18 +105,26 @@ class _ProfileState extends State<Profile> {
           PopupMenuButton<int>(
             icon: Icon(Icons.more_vert),
             onSelected: (int result) {
-              // Handle the selected menu item
               switch (result) {
                 case 0:
-                // Do something for option 1
-                FirebaseAuth.instance.signOut();
-                Navigator.push(context, MaterialPageRoute(builder: (context)=> LoginApp() ));
+                // Pop to the first route
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+
+                  // Sign out and navigate to the login page after a short delay
+                  FirebaseAuth.instance.signOut().then((_) {
+                    Future.delayed(Duration(milliseconds: 100), () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginApp()),
+                      );
+                    });
+                  });
                   break;
                 case 1:
-                // Do something for option 2
+                // Handle Option 2
                   break;
                 case 2:
-                // Do something for option 3
+                // Handle Option 3
                   break;
               }
             },
@@ -133,7 +142,8 @@ class _ProfileState extends State<Profile> {
                 child: Text('Option 3'),
               ),
             ],
-          ),
+          )
+
         ],
         title: ListTile(
           leading: Icon(Icons.person_outline),
@@ -313,7 +323,12 @@ class _ProfileState extends State<Profile> {
                         children: [
                           SizedBox(width: 50,),
                           Expanded(
-                            child: Column(
+                            child:
+                            GestureDetector(
+                              onTap: (){
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=>ShowFollowerScreen(userModel: widget.userModel) ));
+                              },
+                              child: Column(
                               children:  [
                                 Text(
                                   "${widget.userModel.followers!.length}",
@@ -323,36 +338,43 @@ class _ProfileState extends State<Profile> {
                                     fontSize: 14,
                                   ),
                                 ),
-                                Text(
-                                  'Followers',
-                                  style: TextStyle(
-                                    color: Colors.black87,
-                                    fontSize: 14
+                              Text(
+                                    'Followers',
+                                    style: TextStyle(
+                                      color: Colors.black87,
+                                      fontSize: 14
 
+                                    ),
                                   ),
-                                ),
+
                               ],
                             ),
                           ),
+                          ),
                           Expanded(
-                            child: Column(
-                              children:  [
-                                Text(
-                                  '${widget.userModel.following!.length}',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
+                            child: GestureDetector(
+                              onTap: (){
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=> ShowFollowerScreen(userModel: widget.userModel)));
+                              },
+                              child: Column(
+                                children:  [
+                                  Text(
+                                    '${widget.userModel.following!.length}',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  'Following',
-                                  style: TextStyle(
-                                    color: Colors.black87,
-                                    fontSize: 14
+                                  Text(
+                                    'Following',
+                                    style: TextStyle(
+                                      color: Colors.black87,
+                                      fontSize: 14
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                           SizedBox(width: 50,),

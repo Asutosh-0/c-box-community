@@ -11,9 +11,24 @@ class MessageUtil{
         .collection("Messages").doc(message.messageid).set(message.toMap());
 
     await FirebaseFirestore.instance.collection("ChatRoom").doc(chatroom.chatroomid).update({
-      "lastMessage":message.text,
-      "lastTime":message.time
+      "lastMessage":message.type == MessageType.text? message.text : "Images",
+      "lastTime":message.time,
+      "newMessage":true
     });
 
+  }
+  void DeleteMessage(MessageModel message, ChatRoomModel chatRoomModel) async
+  {
+    await FirebaseFirestore.instance.collection("ChatRoom").doc(chatRoomModel.chatroomid)
+        .collection("Messages").doc(message.messageid).delete();
+  }
+  void EditMessage(MessageModel message, ChatRoomModel chatRoomModel,String text) async
+  {
+    await FirebaseFirestore.instance.collection("ChatRoom").doc(chatRoomModel.chatroomid)
+        .collection("Messages").doc(message.messageid).update({
+      "text": text,
+      "seen":false
+
+    });
   }
 }

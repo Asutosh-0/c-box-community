@@ -5,7 +5,7 @@ class MessageModel{
   String? text;
   bool? seen;
   String? time;
-  Type? type;
+  MessageType? type;
 
 
 
@@ -20,7 +20,7 @@ class MessageModel{
     text=map["text"];
     seen=map["seen"];
     time=map["time"];
-    type = map["type"].toString() == Type.image.name ? Type.image : Type.text;
+    type = map["type"].toString() == MessageType.image.name ? MessageType.image : MessageType.text;
   }
 
   Map<String,dynamic> toMap(){
@@ -31,12 +31,15 @@ class MessageModel{
       "text":text,
       "seen":seen,
       "time":time,
-      "type":type
+      "type":type?.type
     };
   }
 }
 
-enum Type{
- text,
- image
+enum MessageType{
+ text("text"),
+ image("image");
+  final String type;
+  const MessageType(this.type);
+
 }

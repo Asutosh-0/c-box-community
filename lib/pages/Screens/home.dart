@@ -367,7 +367,7 @@ class _Home extends State<Home> {
                                               ),
                                               const SizedBox(height: 4),
                                               Text(
-                                                status.userName,
+                                                status.uid == widget.userModel.uid ? "me" : status.userName,
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: const TextStyle(

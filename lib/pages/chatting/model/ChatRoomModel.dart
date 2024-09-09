@@ -4,13 +4,16 @@ class ChatRoomModel{
   Map<String, dynamic>? participants;
   String? lastMessage;
   String? lastTime;
+  bool? newMessage;
+
 
 
   ChatRoomModel({
     this.chatroomid,
     this.participants,
     this.lastMessage,
-    this.lastTime
+    this.lastTime,
+    this.newMessage
   });
   ChatRoomModel.fromMap(Map<String,dynamic>map)
   {
@@ -18,6 +21,7 @@ class ChatRoomModel{
     participants=map["participants"];
     lastMessage=map["lastMessage"];
     lastTime= map["lastTime"];
+    newMessage = map["newMessage"] == true ? true : false;
   }
 
   Map<String,dynamic> toMap()
@@ -26,7 +30,8 @@ class ChatRoomModel{
       "chatroomid":chatroomid,
       "participants":participants,
       "lastMessage":lastMessage,
-      "lastTime":lastTime
+      "lastTime":lastTime,
+      "newMessage": newMessage?? true
 
     };
   }

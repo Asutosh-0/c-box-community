@@ -41,12 +41,15 @@ class ChatShowScreen extends StatelessWidget {
         ],
       ),
       body: Container(
+
         child: StreamBuilder(
           stream: FirebaseFirestore.instance
               .collection("ChatRoom")
               .where("participants.${userModel.uid}", isEqualTo: true)
+              // .orderBy("lastTime",descending: true)
               .snapshots(),
           builder: (context, snapshot) {
+
             if (snapshot.connectionState == ConnectionState.active) {
               if (snapshot.hasData) {
                 QuerySnapshot querySnapshot = snapshot.data as QuerySnapshot;
@@ -72,6 +75,8 @@ class ChatShowScreen extends StatelessWidget {
 
                                 return ListTile(
                                   onTap: () {
+
+
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
@@ -100,9 +105,18 @@ class ChatShowScreen extends StatelessWidget {
                                         ? Icon(Icons.person, size: 17)
                                         : null,
                                   ),
-                                  trailing: Text(
-                                    getFormatedString(context, chatRoomModel.lastTime!),
-                                    style: TextStyle(fontSize: 10),
+                                  trailing: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      if(chatRoomModel.newMessage == true)
+
+                                      Text(".",style: TextStyle(fontSize: 20,color: Colors.black54),),
+                                      Text(
+
+                                        getFormatedString(context, chatRoomModel.lastTime!),
+                                        style: TextStyle(fontSize: 10),
+                                      ),
+                                    ],
                                   ),
                                 );
                               } else {

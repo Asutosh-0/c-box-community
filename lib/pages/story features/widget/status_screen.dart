@@ -1,3 +1,4 @@
+import 'package:c_box/pages/story%20features/model/story.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:story_view/controller/story_controller.dart';
@@ -22,10 +23,11 @@ class _StatusScreenState extends State<StatusScreen> {
 
   void initStoryPageItem()
   {
-    for(int i=0; i<widget.status.statusUrl!.length; i++)
+    for(int i=0; i<widget.status.items.length; i++)
       {
+        StatusItem item = StatusItem.fromMap(widget.status.items[i]);
         storyItems.add(
-          StoryItem.pageImage(url: widget.status.statusUrl[i], controller: controller)
+          StoryItem.pageImage(url: item.url!, controller: controller,caption: Text(item.caption!,textAlign: TextAlign.center,style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white,fontSize: 18),))
         );
       }
   }
