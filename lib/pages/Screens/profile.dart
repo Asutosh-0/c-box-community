@@ -4,17 +4,21 @@ import 'package:c_box/models/user_model.dart';
 import 'package:c_box/pages/pages/EditProfilePage.dart';
 import 'package:c_box/pages/pages/PostShowScreen.dart';
 import 'package:c_box/pages/chatting/chat_screen.dart';
+import 'package:c_box/pages/pages/buttom_sheet.dart';
 import 'package:c_box/pages/pages/show_follower_screen.dart';
 
 import 'package:c_box/services/postServices.dart';
 import 'package:c_box/utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:uuid/uuid.dart';
-
 import '../chatting/model/ChatRoomModel.dart';
+import '../twitter features/Model/TweetModel.dart';
+import '../twitter features/widgets/tweet_Card.dart';
 
 class Profile extends StatefulWidget {
   UserModel? selfUser;
@@ -30,6 +34,8 @@ class _ProfileState extends State<Profile> {
 
   String? res;
   bool check= false;
+
+  String category= "post";
 
   @override
   void initState() {
@@ -50,11 +56,16 @@ class _ProfileState extends State<Profile> {
 
   checkRes() async
   {
-    String value =  await  FollowUser(widget.userModel!);
-    res = value;
+    showLoading(context);
 
-    // setState(() {
-    // });
+    String value =  await  FollowUser(widget.userModel!);
+
+    Navigator.pop(context);
+
+    setState(() {
+      res = value;
+
+    });
 
 
   }
@@ -102,47 +113,13 @@ class _ProfileState extends State<Profile> {
         shadowColor: Colors.black,
 
         actions: [
-          PopupMenuButton<int>(
-            icon: Icon(Icons.more_vert),
-            onSelected: (int result) {
-              switch (result) {
-                case 0:
-                // Pop to the first route
-                  Navigator.of(context).popUntil((route) => route.isFirst);
 
-                  // Sign out and navigate to the login page after a short delay
-                  FirebaseAuth.instance.signOut().then((_) {
-                    Future.delayed(Duration(milliseconds: 100), () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => LoginApp()),
-                      );
-                    });
-                  });
-                  break;
-                case 1:
-                // Handle Option 2
-                  break;
-                case 2:
-                // Handle Option 3
-                  break;
-              }
-            },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
-              const PopupMenuItem<int>(
-                value: 0,
-                child: Text('Log out'),
-              ),
-              const PopupMenuItem<int>(
-                value: 1,
-                child: Text('Option 2'),
-              ),
-              const PopupMenuItem<int>(
-                value: 2,
-                child: Text('Option 3'),
-              ),
-            ],
-          )
+          IconButton(onPressed: (){
+              ShowButtomSheet(context,widget.userModel);
+
+
+          }, icon: Icon(Icons.menu)),
+          SizedBox(width: 10,)
 
         ],
         title: ListTile(
@@ -169,15 +146,44 @@ class _ProfileState extends State<Profile> {
                       child: Row(
                         mainAxisAlignment: widget.userModel!.uid != FirebaseAuth.instance.currentUser!.uid!.toString() ? MainAxisAlignment.start :MainAxisAlignment.start ,
                         children: [
-                          CircleAvatar(
-                            radius: 50,
-                            backgroundColor: Colors.lightBlueAccent.withOpacity(0.4),
-                            backgroundImage: widget.userModel.profilePic != null
-                                ? NetworkImage(widget.userModel.profilePic!)
-                                : AssetImage('assets/c_box.png'),
-                            child: widget.userModel.profilePic == null
-                                ? Icon(Icons.person)
-                                : null,
+                          GestureDetector(
+
+                            child: CircleAvatar(
+                              radius: 50,
+                              backgroundColor: Colors.lightBlueAccent.withOpacity(0.4),
+                              backgroundImage: widget.userModel.profilePic != null
+                                  ? NetworkImage(widget.userModel.profilePic!)
+                                  : AssetImage('assets/c_box.png'),
+                              child: widget.userModel.profilePic == null
+                                  ? Icon(Icons.person)
+                                  : null,
+                            ),
+                            onLongPress: (){
+
+                              showDialog(context: context, builder: (context){
+                                return AlertDialog(
+                                  
+                                  backgroundColor: Colors.transparent,
+                                  
+                                  content: Container(
+                                    margin: EdgeInsets.all(10),
+                                    width: 250,
+                                    height: 250,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(125),
+                                      color: Colors.white,
+                                      image:  DecorationImage(image:
+                                      widget.userModel.profilePic != null
+                                          ? NetworkImage(widget.userModel.profilePic!)
+                                          : AssetImage('assets/c_box.png'),fit: BoxFit.cover),
+
+
+                                    ),
+                                  ),
+                                );
+
+                              });
+                            },
                           ),
                           const SizedBox(width: 24),
                             if(widget.userModel!.uid == FirebaseAuth.instance.currentUser!.uid!.toString() )
@@ -232,7 +238,9 @@ class _ProfileState extends State<Profile> {
                                       // Edit profile page add
 
                                       setState(() {
+
                                         checkRes();
+
                                       });
                                     },
                                     child: Text(res!,style: TextStyle(fontWeight: FontWeight.bold,fontSize: 13,color: Colors.white),),
@@ -392,12 +400,20 @@ class _ProfileState extends State<Profile> {
                           Expanded(
                               child: IconButton(
                                 onPressed: (){
+                                  setState(() {
+
+                                    category = "post";
+                                  });
+
                                 },
                                 icon: Icon( Icons.video_library),
                               )),
                           Expanded(
                               child: IconButton(
                                 onPressed: (){
+                                  setState(() {
+                                    category = "tweets";
+                                  });
 
                                 },
                                 icon: Icon(Icons.article_outlined),
@@ -408,6 +424,8 @@ class _ProfileState extends State<Profile> {
                     ),
                     Divider(),
                     const SizedBox(height: 24),
+
+                    if(category == "post")
                     // Grid post
                     StreamBuilder(
                       stream: FirebaseFirestore.instance.collection("PostDetail").where("uid", isEqualTo: widget.userModel.uid ).snapshots(),
@@ -479,6 +497,8 @@ class _ProfileState extends State<Profile> {
 
                       }
                     ),
+                    if(category == "tweets")
+                      TweetsCategory(userModel: widget.userModel)
                   ],
                 ),
               ),
@@ -489,3 +509,74 @@ class _ProfileState extends State<Profile> {
     );
   }
 }
+
+class TweetsCategory extends StatelessWidget {
+  final UserModel userModel;
+  const TweetsCategory({super.key, required this.userModel});
+
+  @override
+  Widget build(BuildContext context) {
+    // .orderBy("tweetedAt",descending: true)
+    return
+        Container(
+          height: MediaQuery.of(context).size.height,
+          child: StreamBuilder(
+              stream: FirebaseFirestore.instance.collection("Tweets").where("uid",isEqualTo: userModel.uid).snapshots(),
+              builder: (context, snapshot) {
+
+                if(snapshot.connectionState == ConnectionState.active)
+                {
+                  if(snapshot.hasData)
+                    {
+                      QuerySnapshot querySnapshot = snapshot.data as QuerySnapshot;
+                      return ListView.builder(
+                          itemCount:  querySnapshot.docs.length,
+                          itemBuilder: (context,index){
+                            Tweet tweet = Tweet.formMap(querySnapshot.docs[index].data() as Map<String,dynamic>);
+                            return TweetCard(isMain: true,userModel:userModel,tweet: tweet,);
+
+                          });
+
+                    }
+                  else
+                    {
+                      return Center(child: Text("No Tweets"));
+
+
+
+                    }
+
+
+                }
+                else{
+
+                  return Center(
+                    child:Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text("loading.."),
+                        SizedBox(width: 10,),
+                        SizedBox(
+                            width: 200,
+                            height: 160,
+                            child:
+                            showSingleAnimationDialog(context, Indicator.ballBeat, false)
+                        )
+
+                      ],
+                    ),
+                  );
+
+                }
+
+
+              }
+
+
+          ),
+        );
+  }
+}
+

@@ -7,8 +7,12 @@ import 'package:c_box/pages/twitter%20features/widgets/add_tweet_Screen.dart';
 import 'package:c_box/services/postServices.dart';
 import 'package:c_box/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
+
+import '../chatting/UserBottomSeet.dart';
+import '../story features/widget/select_status_screen.dart';
 
 class Post extends StatefulWidget {
   final UserModel userModel;
@@ -22,6 +26,74 @@ class _Post extends State<Post> {
   XFile? _file;
   TextEditingController captionC= TextEditingController();
   bool isVideo= false;
+
+
+
+  void ShowButtomSheet(BuildContext context) async
+  {
+    await showModalBottomSheet(context: context,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+                topLeft:  Radius.circular(20),
+                topRight: Radius.circular(20)
+            )
+        ),
+        builder: (_) {
+          return ListView(
+              shrinkWrap: true,
+              children: [
+                Container(
+                  height: 4,
+                  margin: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height*0.015 ,horizontal: MediaQuery.of(context).size.width*0.4),
+                  decoration: BoxDecoration(
+                      color: Colors.grey,
+                      borderRadius: BorderRadius.circular(8)
+
+                  ),
+                ),
+
+                OptionItem(icon: Icon(Icons.image), text: "Image", onTap: () async{
+                  Navigator.pop(context);
+                  XFile? file = await  ImagePicker().pickImage(source: ImageSource.gallery,imageQuality:10 );
+                  if(file != null)
+                  {
+                    setState(() {
+                      _file = file;
+                      isVideo= false;
+                    });
+                  }
+
+
+                }),
+                OptionItem(icon: Icon(Icons.video_file_outlined), text: "Video", onTap: ()async{
+
+                  Navigator.pop(context);
+                  try {
+                    XFile? file = await ImagePicker().pickVideo(
+                      source: ImageSource.gallery,
+
+                    );
+                    if (file != null) {
+                      setState(() {
+                        _file = file;
+                        isVideo = true;
+                      });
+                    } else {
+                      setState(() {
+
+                      });
+                    }
+                  } catch (e) {
+                    showUpdate("An error occurred while selecting the file", context);
+                  }
+
+
+                }),
+
+              ]
+          );
+        });
+  }
 
   void checkValue() async
   {
@@ -71,18 +143,18 @@ class _Post extends State<Post> {
         shadowColor:Colors.black,
         actions: [
           ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              elevation: 3,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12)
+              ),
+              backgroundColor: Colors.black
+            ),
               onPressed: () async{
                 checkValue();
-              }, child: Text("post")),
+              }, child: Text("post",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)),
           SizedBox(width: 15,),
         ],
-        title: ListTile(
-          leading: CircleAvatar(
-            child: Icon(Icons.person_outline),
-
-          ),
-          title: Text("user_name0055",style: TextStyle(fontSize: 14),),
-        ),
       ),
       body:
 
@@ -159,93 +231,90 @@ class _Post extends State<Post> {
 
                   SizedBox(height: 25,),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
 
 
-                      Expanded(child: (Container(
-                          height: 60,
-
-                          child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                              ),
-
-                              onPressed: ()  async{
-                                XFile? file = await  ImagePicker().pickImage(source: ImageSource.gallery,imageQuality:10 );
-                                if(file != null)
-                                {
-                                  setState(() {
-                                    _file = file;
-                                    isVideo= false;
-                                  });
-                                }
-
-
-                              },
-                              child: Text("image", style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w300,
-                                  color: Colors.black),))
-                      ))),
-                      SizedBox(width: 20,),
-                      Expanded(child: Container(
-                          height: 60,
-
-                          child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                              ),
-                              onPressed: () async {
-                                try {
-                                  XFile? file = await ImagePicker().pickVideo(
-                                    source: ImageSource.gallery,
-
-                                  );
-                                  if (file != null) {
-                                    setState(() {
-                                      _file = file;
-                                      isVideo = true;
-                                    });
-                                  } else {
-                                    setState(() {
-
-                                    });
-                                  }
-                                } catch (e) {
-                                  showUpdate("An error occurred while selecting the file", context);
-                                }
-                              },
-
-                              child: Center(child: Text("video",
-                                style: TextStyle(fontSize: 15,
-                                    fontWeight: FontWeight.w300,
-                                    color: Colors.black),)))),
-
+                      Column(
+                        children: [
+                          GestureDetector(
+                            onTap: (){
+                              ShowButtomSheet(context);
+                          
+                            },
+                            child: Container(
+                                height: 60,
+                                width: 60,
+                          
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(30),
+                                  color: Colors.black12,
+                          
+                                ),
+                          
+                                    child: Center(child: Icon(Icons.perm_media,size: 20,color: Colors.black54,))
+                            ),
+                          ),
+                          Text("Media")
+                        ],
                       ),
                       SizedBox(width: 20,),
+                       Column(
+                         children: [
+                           GestureDetector(
+                             onTap: ()async{
+                               // select the status
+                               XFile? _file = await ImagePicker().pickImage(source: ImageSource.gallery);
+                               if(_file!= null)
+                               {
+                                 Navigator.push(context,
+                                     MaterialPageRoute(builder: (context)=>SelectStatusScreen(file: File(_file.path,),userModel: widget.userModel,) ));
+                               }
 
-                      Expanded(child: Container(
-                          height: 60,
+                             },
+                             child: Container(
+                                height: 60,
+                                width: 60,
+                             
+                             
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(30),
+                                      color: Colors.black12,
+                             
+                                    ),
+                             
+                             
+                                    child: Center(child:Icon(Icons.person_add,size: 20,color: Colors.black54,)),
+                             
+                                                   ),
+                           ),
+                           Text("Story")
+                         ],
+                       ),
+                      SizedBox(width: 20,),
 
-                          child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
+                      Column(
+                        children: [
+                          GestureDetector(
+                            onTap: (){
+                              Navigator.push(context, MaterialPageRoute(builder: (context)=>  AddTweetScreen(userModel: widget.userModel,)));
+                          
+                            },
+                            child: Container(
+                                height: 60,
+                                width: 60,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                color: Colors.black12,
+                          
                               ),
-                              onPressed: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context)=>  AddTweetScreen(userModel: widget.userModel,)));
-
-                              },
-                              child: Center(child: Text("tweet",
-                                style: TextStyle(fontSize: 15,
-                                    fontWeight: FontWeight.w300,
-                                    color: Colors.black),)))),
-
+                          
+                                    child: Center(child: FaIcon(FontAwesomeIcons.twitter,size: 20,color: Colors.black54,)),
+                          
+                            ),
+                          ),
+                          Text("Tweets"),
+                        ],
                       ),
 
                     ],

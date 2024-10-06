@@ -5,6 +5,7 @@ import 'package:c_box/utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 
 class TweetsDisplayScreen extends StatelessWidget {
   final UserModel userModel;
@@ -30,21 +31,19 @@ class TweetsDisplayScreen extends StatelessWidget {
         else{
 
           return Center(
-            child:Row(
+            child:Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text("loading.."),
                 SizedBox(width: 10,),
-                SizedBox(
-                  width: 25, // Adjust the width to reduce the size
-                  height: 25, // Adjust the height to reduce the size
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                    strokeWidth: 2.0,
-                  ),
-                ),
+               SizedBox(
+                 width: 200,
+                   height: 160,
+                   child:
+                   showSingleAnimationDialog(context, Indicator.ballBeat, false)
+               )
 
               ],
             ),

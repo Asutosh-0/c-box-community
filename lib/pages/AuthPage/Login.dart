@@ -144,7 +144,6 @@ class _LoginState extends State<Login> {
                         SizedBox(width: 5),
                         InkWell(
                           onTap: () {
-                            Navigator.pop(context);
                             Navigator.push(context, MaterialPageRoute(builder: (context)=> SignUp()));
                           },
                           child: Text("Create an account",

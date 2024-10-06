@@ -1,18 +1,26 @@
+import 'package:c_box/models/user_model.dart';
 import 'package:c_box/pages/pages/user_detail_screen.dart';
+
+import 'package:c_box/services/Authentication.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../../models/user_model.dart';
+class OtpVerify extends StatefulWidget {
+  final String name;
+  final String password;
+  final String otp;
+  final String email;
 
-class Otpverify extends StatefulWidget {
-  final UserModel userModel;
-  Otpverify({super.key, required this.userModel});
+  OtpVerify({required this.name, required this.email, required this.password, required this.otp});
 
   @override
-  State<Otpverify> createState() => _OtpverifyState();
+  State<OtpVerify> createState() => _OtpVerifyState();
 }
 
-class _OtpverifyState extends State<Otpverify> {
+class _OtpVerifyState extends State<OtpVerify> {
+  TextEditingController otpController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,7 +32,7 @@ class _OtpverifyState extends State<Otpverify> {
             child: Center(
               child: Container(
                 width: width > 550 ? 500 : width,
-                padding: EdgeInsets.symmetric(horizontal: 20), // Add padding here
+                padding: EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -35,13 +43,14 @@ class _OtpverifyState extends State<Otpverify> {
                     ),
                     SizedBox(height: 20),
                     Container(
-                      width: 200, // Make the width responsive
+                      width: 200,
                       height: 40,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(5),
                         border: Border.all(width: 1, color: Colors.black),
                       ),
                       child: TextField(
+                        controller: otpController,
                         keyboardType: TextInputType.number,
                         cursorColor: Colors.black87,
                         cursorWidth: 1,
@@ -51,9 +60,9 @@ class _OtpverifyState extends State<Otpverify> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 10), // Add spacing between widgets
+                    SizedBox(height: 10),
                     Container(
-                      width: 200, // Make the width responsive
+                      width: 200,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
@@ -71,7 +80,7 @@ class _OtpverifyState extends State<Otpverify> {
                     ),
                     SizedBox(height: 30),
                     Container(
-                      width: 200, // Make the width responsive
+                      width: 200,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
@@ -79,10 +88,41 @@ class _OtpverifyState extends State<Otpverify> {
                           ),
                           backgroundColor: Colors.black,
                         ),
-                        onPressed: () {
-                          // goto  userdetail
+                        onPressed: () async {
+                          String inputOtp = otpController.text.trim();
 
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=> UserDetailScreen(userModel: widget.userModel,)));
+                          // Print the received values
+                          print("Name: ${widget.name}");
+                          print("Password: ${widget.password}");
+                          print("OTP: ${widget.otp}");
+
+                          if (widget.otp == inputOtp) {
+                            // sign up
+                            String res = await SignUpUser(widget.email, widget.password);
+                            if (res == "success") {
+                              User? user = FirebaseAuth.instance.currentUser;
+                              UserModel userModel = UserModel(
+                                userName: widget.name,
+                                email: widget.email,
+                                password: widget.password,
+                                uid: user!.uid,
+                                followers: [],
+                                following: [],
+                                save: []
+                              );
+
+                              // showUpdate("Account created successfully");
+
+                              // navigating next User
+                              Navigator.pop(context);
+                              // Go to user detail
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => UserDetailScreen(userModel: userModel)));
+                            } else {
+                              Navigator.pop(context);
+                              // showUpdate(res);
+                              print(res);
+                            }
+                          }
                         },
                         child: Text(
                           "Verify",

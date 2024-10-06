@@ -1,8 +1,10 @@
 import 'package:c_box/models/user_model.dart';
 import 'package:c_box/pages/chatting/chat_screen.dart';
 import 'package:c_box/pages/chatting/utils/helper.dart';
+import 'package:c_box/utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 
 import '../../services/postServices.dart';
 import 'model/ChatRoomModel.dart';
@@ -133,16 +135,7 @@ class ChatShowScreen extends StatelessWidget {
                 );
               }
             } else {
-              return Center(
-                child: SizedBox(
-                  width: 25,
-                  height: 25,
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                    strokeWidth: 2.0,
-                  ),
-                ),
-              );
+              return showLoaddingAmination(indicator: Indicator.ballBeat, showPathBackground: true);
             }
           },
         ),

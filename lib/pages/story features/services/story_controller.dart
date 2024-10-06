@@ -5,6 +5,7 @@ import 'package:c_box/pages/story%20features/model/story.dart';
 import 'package:c_box/pages/story%20features/model/storyModel.dart';
 import 'package:c_box/utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -83,6 +84,21 @@ class StatusController {
               .doc(newStatus.uid)
               .set(newStatus.toMap());
         }
+        // DocumentSnapshot snap =  await FirebaseFirestore.instance.collection("History").doc(userModel.uid!).get();
+        //
+        // Map<String,dynamic> map = snap.data() as Map<String,dynamic>;
+        // List<Map<String,dynamic>> statusList= map["statusHistory"] ?? [] ;
+        // statusList.add(newItem.toMap());
+        // FirebaseFirestore.instance.collection("History").doc(userModel.uid!).set({
+        //   "uid":userModel.uid,
+        //   "statusHistory": FieldValue.arrayUnion(statusList)
+        // });
+        //
+        Map<String, dynamic> item = newItem.toMap();
+        item["type"] = "status";
+        item["uid"]= FirebaseAuth.instance.currentUser!.uid!.toString();
+
+        FirebaseFirestore.instance.collection("History").add(item);
 
         Navigator.pop(context);
         Navigator.pushReplacement(
@@ -114,47 +130,6 @@ class StatusController {
     }
   }
 
-  // Get status items
-  // Future<List<Status>> getStatus({
-  //   required BuildContext context,
-  //   required UserModel userModel,
-  // }) async {
-  //   final List<Status> statusList = [];
-  //
-  //   try {
-  //     List<String> following = userModel.following!;
-  //     for (int i = 0; i < following.length; i++) {
-  //       var statusSnapshot = await FirebaseFirestore.instance
-  //           .collection("Status")
-  //           .where("uid", isEqualTo: following[i])
-  //           .where("createdAt",
-  //           isGreaterThan:
-  //           DateTime.now().subtract(Duration(hours: 24)).millisecondsSinceEpoch)
-  //           .get();
-  //
-  //       for (var tempStatus in statusSnapshot.docs) {
-  //         Status status =
-  //         Status.fromMap(tempStatus.data() as Map<String, dynamic>);
-  //
-  //         // Filter out status items older than 24 hours
-  //         List<Map<String, dynamic>> validItems = status.items.where((item) {
-  //           StatusItem sitem = StatusItem.fromMap(item);
-  //           return sitem.time!.isAfter(DateTime.now().subtract(Duration(hours: 24)));
-  //         }).toList();
-  //
-  //         status.items = validItems;
-  //
-  //         if (status.whoCanSee.contains(userModel.uid)) {
-  //           statusList.add(status);
-  //         }
-  //       }
-  //     }
-  //   } catch (er) {
-  //     print(er.toString());
-  //   }
-  //
-  //   return statusList;
-  // }
 
   Future<List<Status>> getStatus({
     required BuildContext context,
@@ -205,6 +180,24 @@ class StatusController {
     }
 
     return statusList;
+  }
+  Future<List<StatusItem>> getSelfStatus(UserModel userModel)async{
+    List<StatusItem> status=[];
+    DocumentSnapshot snapshot = await FirebaseFirestore.instance.collection("Status").doc(userModel.uid).get();
+    Status item = Status.fromMap(snapshot.data() as Map<String, dynamic>);
+    List<Map<String,dynamic>> map = item.items;
+    for(Map<String,dynamic> mp in map )
+      {
+        StatusItem statusItem = StatusItem.fromMap(mp);
+        status.add(statusItem);
+      }
+
+    return status;
+  }
+  Future<Status> getSelfStatusItem(UserModel userModel)async{
+    DocumentSnapshot snapshot = await FirebaseFirestore.instance.collection("Status").doc(userModel.uid).get();
+    Status item = Status.fromMap(snapshot.data() as Map<String, dynamic>);
+    return item;
   }
 
 }

@@ -11,10 +11,12 @@ class UserModel{
   List<String>? following;
   String? faceId;
   String? fullName;
+  List<String>? save;
+  List<String>? viewHistory;
 
   UserModel({ this.userName , this.email, this.password ,
     this.profilePic, this.uid, this.bio, this.address,
-    this.followers, this.following,this.faceId, this.fullName});
+    this.followers, this.following,this.faceId, this.fullName,this.save,this.viewHistory});
 
   UserModel.fromMap(Map<String, dynamic> map)
   {
@@ -29,6 +31,8 @@ class UserModel{
     following = List<String>.from( map["following"] ?? []);
     faceId= map["faceId"];
     fullName = map["fullName"];
+    save = List<String>.from(map["save"] ?? []);
+    viewHistory= List<String>.from(map["viewHistory"] ?? []);
 
   }
 
@@ -45,7 +49,9 @@ class UserModel{
       "followers" : followers,
       "following" : following,
       "faceId": faceId,
-      "fullName" :fullName
+      "fullName" :fullName,
+      "save":save,
+      "viewHistory":[]
     };
   }
 

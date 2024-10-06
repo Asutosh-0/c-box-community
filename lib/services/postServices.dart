@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:c_box/models/PostModel.dart';
 import 'package:c_box/models/user_model.dart';
+import 'package:c_box/pages/Screens/post.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -96,6 +97,14 @@ Future<UserModel> getUserById(String uid) async
   return userModel;
 }
 
+Future<PostModel> getPostModelById(String id)async
+{
+  DocumentSnapshot snapshot= await FirebaseFirestore.instance.collection("PostDetail").doc(id).get();
+  PostModel postModel= PostModel.fromMap(snapshot.data() as Map<String,dynamic>);
+  return postModel;
+
+
+}
 
 FollowUser(UserModel model) async
 {
@@ -112,13 +121,13 @@ FollowUser(UserModel model) async
       "following": FieldValue.arrayRemove([model.uid])
     });
     print("update value");
-    return "unfollow";
+    return "follow";
 
   }
   else{
     model.followers!.add(id);
     await FirebaseFirestore.instance.collection("UserDetail").doc(model!.uid).update(model.toMap());
-    log("follow");
+    log("unfollow");
 
 
     await FirebaseFirestore.instance.collection("UserDetail").doc(id).update({
@@ -130,7 +139,32 @@ FollowUser(UserModel model) async
 
 
 
-    return "follow";
+    return "unfollow";
   }
+
+}
+savePostHistory(UserModel userModel, PostModel postModel) async
+{
+
+
+  DocumentSnapshot snap = await FirebaseFirestore.instance
+      .collection("UserDetail").doc(userModel.uid).get();
+  Map<String, dynamic> detail = snap.data() as Map<
+      String,
+      dynamic>;
+
+  List<String> viewHistory =List<String>.from(detail["viewHistory"] ?? []);
+  if(viewHistory.contains(postModel.postId))
+    {
+      viewHistory.remove(postModel.postId);
+    }
+  viewHistory.add(postModel!.postId!);
+  FirebaseFirestore.instance.collection("UserDetail").doc(
+      userModel.uid).update(
+      {
+        "viewHistory": viewHistory
+      }
+
+  );
 
 }

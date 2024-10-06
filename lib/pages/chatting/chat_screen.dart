@@ -12,8 +12,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
-
 import 'UserBottomSeet.dart';
+import 'package:flutter/rendering.dart';
+// import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+// import 'package:image_gallery_saver/image_gallery_saver.dart';
+// import 'package:path_provider/path_provider.dart';
 
 class ChatScreen extends StatefulWidget {
   final UserModel selfUser;
@@ -29,6 +34,16 @@ class _ChatScreenState extends State<ChatScreen> {
   TextEditingController messageC= TextEditingController();
   File? file;
 
+  // _saveNetworkImage() async {
+  //   var response = await Dio().get(
+  //       "https://ss0.baidu.com/94o3dSag_xI4khGko9WTAnF6hhy/image/h%3D300/sign=a62e824376d98d1069d40a31113eb807/838ba61ea8d3fd1fc9c7b6853a4e251f94ca5f46.jpg",
+  //       options: Options(responseType: ResponseType.bytes));
+  //   final result = await ImageGallerySaver.saveImage(
+  //       Uint8List.fromList(response.data),
+  //       quality: 60,
+  //       name: "hello");
+  //   print(result);
+  // }
 
   Future<String> UploadFile(File file,String uid, String id) async {
     try {
@@ -222,7 +237,11 @@ class _ChatScreenState extends State<ChatScreen> {
                                                     });
                                                   })
                                                   :
-                                              OptionItem(icon: Icon(Icons.download_rounded,color: Colors.blue,size: 26,), text: "Save Image", onTap: (){}),
+                                              OptionItem(icon: Icon(Icons.download_rounded,color: Colors.blue,size: 26,), text: "Save Image", onTap: (){
+                                               // _saveNetworkImage();
+                                                Navigator.pop(context);
+
+                                              }),
 
 
                                               Divider(

@@ -21,6 +21,15 @@ class ReelsScreen extends StatefulWidget {
 
 class _ReelsScreenState extends State<ReelsScreen> {
 
+ late  UserModel targetUser;
+
+ void GetTrageUserModel(PostModel postModel) async
+ {
+   UserModel userModel = await getUserById(postModel!.uid!);
+
+
+ }
+
 
 
   builldProfile(String profilePic)
@@ -108,7 +117,10 @@ class _ReelsScreenState extends State<ReelsScreen> {
                   scrollDirection: Axis.vertical,
                   itemBuilder: (context,index){
 
+
                     PostModel postModel = PostModel.fromMap(qsnap.docs[index].data() as Map<String,dynamic>);
+                    savePostHistory(widget.userModel, postModel);
+
                     return Stack(
                       children: [
                         // ReelsPlayerItem(videoUrl:  "https://firebasestorage.googleapis.com/v0/b/c-box-community.appspot.com/o/Media%2F2c6663e0-572c-11ef-94ad-2b7bd26ab166?alt=media&token=691a8d59-c79b-4da0-a581-5597a37b7caa"),

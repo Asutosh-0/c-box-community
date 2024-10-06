@@ -37,8 +37,8 @@ dependencies:
   cupertino_icons: ^1.0.6
   google_fonts: ^6.2.1
   flutter_svg: ^2.0.10+1
-  firebase_core: ^3.1.1
-  firebase_auth: ^5.1.2
+  firebase_core: ^3.4.1
+  firebase_auth: ^5.2.1
   font_awesome_flutter: ^10.7.0
   email_auth: ^2.0.0
   firebase_storage: ^12.1.1
@@ -51,6 +51,8 @@ dependencies:
   any_link_preview: ^3.0.2
   like_button: ^2.0.5
   story_view: ^0.16.5
+  loading_indicator: ^3.1.1
+  mailer: ^6.1.2
 
 
 dev_dependencies:

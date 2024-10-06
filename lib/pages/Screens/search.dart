@@ -1,7 +1,9 @@
 import 'package:c_box/models/user_model.dart';
 import 'package:c_box/pages/Screens/profile.dart';
+import 'package:c_box/utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 
 class Search extends StatefulWidget {
   final UserModel  userModel;
@@ -103,9 +105,7 @@ class _SearchState extends State<Search> {
                         return Center(child: Text("No data"));
                       }
                     } else {
-                      return Center(
-                        child: CircularProgressIndicator(),
-                      );
+                      return showLoaddingAmination(indicator: Indicator.ballRotate, showPathBackground: true);
                     }
                   },
                 ),

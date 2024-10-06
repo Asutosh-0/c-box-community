@@ -5,6 +5,7 @@ import 'package:c_box/models/user_model.dart';
 import 'package:c_box/pages/Screens/profile.dart';
 import 'package:c_box/pages/chatting/ChatShowScreen.dart';
 import 'package:c_box/pages/pages/commentPage.dart';
+import 'package:c_box/pages/story%20features/model/story.dart';
 import 'package:c_box/pages/story%20features/model/storyModel.dart';
 import 'package:c_box/pages/story%20features/services/story_controller.dart';
 import 'package:c_box/pages/story%20features/widget/select_status_screen.dart';
@@ -32,73 +33,18 @@ class Home extends StatefulWidget {
 
 class _Home extends State<Home> {
 
-  final List<Map<String, dynamic>> searchUsers = [
-    {
-      'profileImageUrl': 'https://cdn.pixabay.com/photo/2016/03/15/17/07/girl-1258727_640.jpg',
-      'username': 'johndoe',
-      'fullName': 'John Doe',
-    },
-    {
-      'profileImageUrl': 'https://cdn.pixabay.com/photo/2017/09/26/17/34/ballet-2789416_640.jpg',
-      'username': 'janedoe',
-      'fullName': 'Jane Doe',
-    },
-    {
-      'profileImageUrl': 'https://cdn.pixabay.com/photo/2019/05/28/05/06/female-4234344_640.jpg',
-      'username': 'mikebrown',
-      'fullName': 'Mike Brown',
-    },
-    {
-      'profileImageUrl': 'https://cdn.pixabay.com/photo/2016/10/20/08/36/woman-1754895_640.jpg',
-      'username': 'emilyjones',
-      'fullName': 'Emily Jones',
-    },
-    {
-      'profileImageUrl': 'https://cdn.pixabay.com/photo/2019/07/25/10/43/ballerina-4362282_640.jpg',
-      'username': 'alexsmith',
-      'fullName': 'Alex Smith',
-    },
-    {
-      'profileImageUrl': 'https://cdn.pixabay.com/photo/2016/03/15/17/07/girl-1258727_640.jpg',
-      'username': 'sarahwilliams',
-      'fullName': 'Sarah Williams',
-    },
-    {
-      'profileImageUrl': 'https://cdn.pixabay.com/photo/2016/07/08/23/17/girl-1505407_640.jpg',
-      'username': 'davidlee',
-      'fullName': 'David Lee',
-    },
-    {
-      'profileImageUrl': 'https://cdn.pixabay.com/photo/2023/01/01/16/35/street-7690347_640.jpg',
-      'username': 'laurajohnson',
-      'fullName': 'Laura Johnson',
-    },
-    {
-      'profileImageUrl': 'https://cdn.pixabay.com/photo/2016/10/20/08/36/woman-1754895_640.jpg',
-      'username': 'emilyjones',
-      'fullName': 'Emily Jones',
-    },
-    {
-      'profileImageUrl': 'https://cdn.pixabay.com/photo/2019/07/25/10/43/ballerina-4362282_640.jpg',
-      'username': 'alexsmith',
-      'fullName': 'Alex Smith',
-    },
-    {
-      'profileImageUrl': 'https://cdn.pixabay.com/photo/2016/03/15/17/07/girl-1258727_640.jpg',
-      'username': 'sarahwilliams',
-      'fullName': 'Sarah Williams',
-    },
-    {
-      'profileImageUrl': 'https://cdn.pixabay.com/photo/2016/07/08/23/17/girl-1505407_640.jpg',
-      'username': 'davidlee',
-      'fullName': 'David Lee',
-    },
-    {
-      'profileImageUrl': 'https://cdn.pixabay.com/photo/2023/01/01/16/35/street-7690347_640.jpg',
-      'username': 'laurajohnson',
-      'fullName': 'Laura Johnson',
-    },
-  ];
+   late Status statusItem;
+
+  void getStatus() async{
+    Status item ;
+    item =  await StatusController().getSelfStatusItem(widget.userModel);
+    setState(() {
+      statusItem = item;
+    });
+  }
+
+
+
 
   Future<List<PostModel>> fetchPrioritizedPosts() async {
     final userDoc = await FirebaseFirestore.instance.collection('users').doc(widget.userModel.uid).get();
@@ -132,6 +78,13 @@ class _Home extends State<Home> {
     posts.shuffle(Random());
 
     return posts;
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getStatus();
   }
   @override
   Widget build(BuildContext context) {
@@ -244,7 +197,15 @@ class _Home extends State<Home> {
                                     crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
                                       InkWell(
-                                        onTap: () async{
+                                        onTap: ()async{
+                                          if(statusItem.items.isNotEmpty)
+                                            {
+                                              Navigator.push(context, MaterialPageRoute(builder: (context)=>StatusScreen(status: statusItem) ));
+                                            }
+
+
+                                        },
+                                        onLongPress: () async{
                                           // select the status
                                           XFile? _file = await ImagePicker().pickImage(source: ImageSource.gallery);
                                           if(_file!= null)
@@ -252,7 +213,7 @@ class _Home extends State<Home> {
                                               Navigator.push(context,
                                                   MaterialPageRoute(builder: (context)=>SelectStatusScreen(file: File(_file.path,),userModel: widget.userModel,) ));
                                             }
-            
+
                                         },
                                         child: Container(
                                             width: 55,
@@ -269,7 +230,7 @@ class _Home extends State<Home> {
                                               child: widget.userModel.profilePic == null
                                                   ? Icon(Icons.person)
                                                   : null,
-            
+
                                             )
                                         ),
                                       ),
@@ -293,13 +254,13 @@ class _Home extends State<Home> {
                             ],
                           ),
                         ),
-            
+
                         Expanded(
                           child: SingleChildScrollView(
                             scrollDirection: Axis.vertical,
                             child: Container(
                               width: MediaQuery.of(context).size.width,
-            
+
                               height: 100,
                               color: Colors.purple[30],
                               child: FutureBuilder<List<Status>>(
@@ -388,7 +349,7 @@ class _Home extends State<Home> {
                             ),
                           ),
                         ),
-            
+
                       ],
                     ),
                   ),
@@ -397,27 +358,27 @@ class _Home extends State<Home> {
                   ),
                   Expanded(
                     child: StreamBuilder(
-            
+
                         stream: FirebaseFirestore.instance.collection("PostDetail").orderBy("postUrl").snapshots(),
                     // FutureBuilder<List<PostModel>>(
                     //     future: fetchPrioritizedPosts(),
                         builder: (context, snapshot) {
-            
-            
+
+
                           if(snapshot.connectionState == ConnectionState.active)
                           {
                             if(snapshot.hasData)
                             {
                               var qsnap = snapshot.data as QuerySnapshot;
                               return ListView.builder(
-            
+
                                   itemCount: qsnap.docs.length,
                                   itemBuilder:
                                       (context, index) {
                                     DocumentSnapshot dSnap = qsnap.docs[index] as DocumentSnapshot;
                                     PostModel postModel = PostModel.fromMap(
                                         dSnap.data() as Map<String, dynamic>);
-            
+
                                     return Padding(
                                       padding: const EdgeInsets.all(8.6),
                                       child: SizedBox(
@@ -427,44 +388,44 @@ class _Home extends State<Home> {
                                             .width,
                                         child: Column(
                                           children: [
-            
-            
+
+
                                             TopBar(postModel: postModel,selfUser: widget.userModel,),
-            
+
                                             if(postModel.isVideo==true )
                                               PostVideo(showVideo: postModel),
-            
+
                                             if(postModel.isVideo == false)
                                             PostBar(postModel: postModel),
-            
+
                                             const SizedBox(height: 15),
-            
+
                                             // Bottom
                                             ButtomBar(postModel:postModel,userModel: widget.userModel!)
-            
+
                                           ],
                                         ),
                                       ),
                                     );
                                   }
-            
-            
+
+
                               );
-            
+
                             }
                             else if(snapshot.hasError)
                             {
                               return Center(
                                 child: Text("Check Internet"),
                               );
-            
+
                             }
                             else{
                               return Center(
                                 child: Text("Check Internet"),
                               );
                             }
-            
+
                           }
                           else
                           {
@@ -479,7 +440,7 @@ class _Home extends State<Home> {
                               ),
                             );
                           }
-            
+
                         }
                     ),
                   ),
@@ -514,7 +475,12 @@ class _TopBarState extends State<TopBar> {
     getModel();
   }
   getModel()async{
-    model = await getUserById(widget.postModel.uid!);
+
+    UserModel temp = await getUserById(widget.postModel.uid!);
+    setState(() {
+      model = temp;
+
+    });
   }
 
   @override
@@ -527,17 +493,47 @@ class _TopBarState extends State<TopBar> {
                 builder: (context) => Profile(userModel: model!,selfUser: widget.selfUser,)));
           }
         },
-        child: CircleAvatar(
+        child: model!= null ? GestureDetector(
+          onLongPress: (){
+            showDialog(context: context, builder: (context){
+              return AlertDialog(
+
+                backgroundColor: Colors.transparent,
+
+                content: Container(
+                  margin: EdgeInsets.all(10),
+                  width: 250,
+                  height: 250,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(125),
+                    color: Colors.white,
+                    image:  DecorationImage(image:
+                    model!.profilePic != null
+                        ? NetworkImage(model!.profilePic!)
+                        : AssetImage('assets/c_box.png'),fit: BoxFit.cover),
+
+
+                  ),
+                ),
+              );
+
+            });
+          },
+          child: CircleAvatar(
+            radius: 18,
+
+            backgroundImage: model!.profilePic != null
+                ? NetworkImage(
+                model!.profilePic!)
+                : null, // profile image url
+            child: model!.profilePic ==
+                null
+                ? Icon(Icons.person_outline)
+                : null,
+          ),
+        ): CircleAvatar(
           radius: 18,
-          backgroundImage: widget.postModel
-              .profilePic != null
-              ? NetworkImage(
-              widget.postModel.profilePic!)
-              : null, // profile image url
-          child: widget.postModel.profilePic ==
-              null
-              ? Icon(Icons.person_outline)
-              : null,
+          child: Icon(Icons.person_outline),
         ),
       ),
       title: Text(widget.postModel.userName!),
@@ -670,17 +666,7 @@ class ButtomBar extends StatelessWidget {
                     },
                   ),
                 ),
-                // IconButton(
-                //   icon: Icon(
-                //      postModel.likes!.contains(userModel.uid) ? Icons.favorite : Icons.favorite_outline,
-                //       color: postModel.likes!.contains(userModel.uid) ? Colors.red: Colors
-                //           .black54),
-                //   onPressed: () async {
-                //     print(
-                //         'Favorite clicked at index ');
-                //     LikePost(postModel.postId!);
-                //   },
-                // ),
+
                 SizedBox(width: 4,),
                 Container(
                   margin: EdgeInsets.only(bottom: 5),
@@ -712,6 +698,35 @@ class ButtomBar extends StatelessWidget {
                         'Send clicked at index ');
                   },
                 ),
+
+                Expanded(child: Container()),
+                Container(
+                  child: IconButton(onPressed: ()async{
+
+                    if(!(userModel.save!.contains(postModel.postId))) {
+                      showLoading(context);
+                      DocumentSnapshot snap = await FirebaseFirestore.instance
+                          .collection("UserDetail").doc(userModel.uid).get();
+                      Map<String, dynamic> detail = snap.data() as Map<
+                          String,
+                          dynamic>;
+
+                      List<String> save =List<String>.from(detail["save"] ?? []);
+                      save.add(postModel!.postId!);
+                      FirebaseFirestore.instance.collection("UserDetail").doc(
+                          userModel.uid).update(
+                          {
+                            "save": save
+                          }
+
+                      );
+
+                      Navigator.pop(context);
+                    }
+                  }, icon: Icon(Icons.save)),
+                ),
+                SizedBox(width: 15,)
+
               ],
             ),
           ),
@@ -743,15 +758,7 @@ class ButtomBar extends StatelessWidget {
                     ),
                   ],
                 ),
-                Expanded(child: Container()),
-                IconButton(
-                  onPressed: () {
-                    print(
-                        'Save clicked at index ');
-                  },
-                  icon: Icon(Icons
-                      .save_alt_outlined),
-                ),
+
                 SizedBox(width: 10),
               ],
             ),
